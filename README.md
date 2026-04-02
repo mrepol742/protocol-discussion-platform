@@ -1,5 +1,5 @@
-# laravel-react-ts-template
-I did it so you don't have to (with typescript)
+# Protocol Discussion Platform
+A content-first discussion platform where users can post structured protocols, create discussion threads, and engage through comments, reviews, and voting—with intelligent search and filter capabilities.
 
 ## Setting up
 - install dependecies
