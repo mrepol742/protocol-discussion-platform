@@ -15,7 +15,12 @@
 </head>
 
 <body>
-    <div id="root"></div>
+    <noscript>
+        <strong
+            >We're sorry but this application doesn't work properly without JavaScript enabled.
+            Please enable it to continue.</strong
+        >
+    </noscript>
     @vite ('resources/react/index.tsx')
 </body>
 </html>
