@@ -16,8 +16,9 @@ A content-first discussion platform where users can post structured protocols, c
   ```
 - database migration
   ```
-  php artisan migrate
-  php artisan db:seed
+  php artisan migrate:fresh --seed
+  php artisan scout:import "App\Models\Protocol"
+  php artisan scout:import "App\Models\Thread"
   ```
 
 # Start application
