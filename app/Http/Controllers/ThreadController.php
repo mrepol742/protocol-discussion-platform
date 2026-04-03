@@ -4,19 +4,27 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Thread;
+use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class ThreadController extends Controller
 {
     /**
      * Display a listing of the threads, optionally filtered by protocol.
+     *
+     * @return LengthAwarePaginator
      */
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(): LengthAwarePaginator
     {
         return Thread::with('protocol')->latest()->paginate(10);
     }
 
     /**
      * Store a newly created thread in storage.
+     *
+     * @param Request $request
+     * @return Thread
      */
     public function store(Request $request): Thread
     {
@@ -32,6 +40,9 @@ class ThreadController extends Controller
 
     /**
      * Display the specified thread along with its comments.
+     *
+     * @param Thread $thread
+     * @return Thread
      */
     public function show(Thread $thread): Thread
     {
@@ -40,6 +51,10 @@ class ThreadController extends Controller
 
     /**
      * Update the specified thread in storage.
+     *
+     * @param Request $request
+     * @param Thread $thread
+     * @return Thread
      */
     public function update(Request $request, Thread $thread): Thread
     {
@@ -50,8 +65,11 @@ class ThreadController extends Controller
 
     /**
      * Remove the specified thread from storage.
+     *
+     * @param Thread $thread
+     * @return Response
      */
-    public function destroy(Thread $thread): \Illuminate\Http\Response
+    public function destroy(Thread $thread): Response
     {
         $thread->delete();
         return response()->noContent();
@@ -59,8 +77,11 @@ class ThreadController extends Controller
 
     /**
      * Search threads by title or body.
+     *
+     * @param Request $request
+     * @return Collection
      */
-    public function search(Request $request): \Illuminate\Support\Collection
+    public function search(Request $request): Collection
     {
         return Thread::search($request->q)->get();
     }

@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Review;
+use Illuminate\Http\Response;
 
 class ReviewController extends Controller
 {
     /**
      * Store a newly created review in storage.
+     *
+     * @param Request $request
+     * @return Review
      */
     public function store(Request $request): Review
     {
@@ -26,6 +30,10 @@ class ReviewController extends Controller
 
     /**
      * Update the specified review in storage.
+     *
+     * @param Request $request
+     * @param Review $review
+     * @return Review
      */
     public function update(Request $request, Review $review): Review
     {
@@ -35,8 +43,11 @@ class ReviewController extends Controller
 
     /**
      * Remove the specified review from storage.
+     *
+     * @param Review $review
+     * @return Response
      */
-    public function destroy(Review $review): \Illuminate\Http\Response
+    public function destroy(Review $review): Response
     {
         $review->delete();
         return response()->noContent();

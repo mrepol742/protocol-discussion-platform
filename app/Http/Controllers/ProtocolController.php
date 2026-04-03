@@ -4,22 +4,30 @@ namespace App\Http\Controllers;
 
 use App\Models\Protocol;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 
 class ProtocolController extends Controller
 {
     /**
      * Display a listing of the protocols.
+     *
+     * @return LengthAwarePaginator
      */
-    public function index()
+    public function index(): LengthAwarePaginator
     {
         return Protocol::latest()->paginate(10);
     }
 
     /**
      * Store a newly created protocol in storage.
+     *
+     * @param Request $request
+     * @return Response
      */
-    public function store(Request $request): \Illuminate\Http\Response
+    public function store(Request $request): Response
     {
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
@@ -44,6 +52,9 @@ class ProtocolController extends Controller
 
     /**
      * Display the specified protocol along with its threads and reviews.
+     *
+     * @param Protocol $protocol
+     * @return Protocol
      */
     public function show(Protocol $protocol): Protocol
     {
@@ -52,6 +63,10 @@ class ProtocolController extends Controller
 
     /**
      * Update the specified protocol in storage.
+     *
+     * @param Request $request
+     * @param Protocol $protocol
+     * @return Protocol
      */
     public function update(Request $request, Protocol $protocol): Protocol
     {
@@ -62,8 +77,11 @@ class ProtocolController extends Controller
 
     /**
      * Remove the specified protocol from storage.
+     *
+     * @param Protocol $protocol
+     * @return Response
      */
-    public function destroy(Protocol $protocol): \Illuminate\Http\Response
+    public function destroy(Protocol $protocol): Response
     {
         $protocol->delete();
         return response()->noContent();
@@ -71,12 +89,17 @@ class ProtocolController extends Controller
 
     /**
      * Search for protocols based on a query string.
+     *
+     * @param Request $request
+     * @return Collection
      */
-    public function search(Request $request): \Illuminate\Support\Collection
+    public function search(Request $request): Collection
     {
         $request->validate(['q' => 'required|string']);
-        return Protocol::search($request->q)->options([
-            'query_by' => 'title, tags'
-        ])->get();
+        return Protocol::search($request->q)
+            ->options([
+                'query_by' => 'title, tags',
+            ])
+            ->get();
     }
 }

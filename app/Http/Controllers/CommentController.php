@@ -9,6 +9,9 @@ class CommentController extends Controller
 {
     /**
      * Store a newly created comment in storage.
+     *
+     * @param Request $request
+     * @return Comment
      */
     public function store(Request $request): Comment
     {
@@ -22,6 +25,9 @@ class CommentController extends Controller
 
     /**
      * Update the specified comment in storage.
+     *
+     * @param Request $request
+     * @param Comment
      */
     public function update(Request $request, Comment $comment): Comment
     {
@@ -34,8 +40,11 @@ class CommentController extends Controller
 
     /**
      * Remove the specified comment from storage.
+     *
+     * @param Comment $comment
+     * @return Response
      */
-    public function destroy(Comment $comment): \Illuminate\Http\Response
+    public function destroy(Comment $comment): Request
     {
         $comment->delete();
         return response()->noContent();

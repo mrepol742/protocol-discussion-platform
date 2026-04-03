@@ -1,5 +1,8 @@
-import { useState } from 'react'
-import Brand from '../../components/ui/Brand'
+import { useRef, useState } from 'react'
+import Brand from '../../components/shared/Brand'
+import login from '../../services/auth/login'
+import { toast } from 'react-toastify'
+import Input from '../../components/shared/Input'
 
 export default function Login() {
     const [form, setForm] = useState({
@@ -7,6 +10,8 @@ export default function Login() {
         email: '',
         password: '',
     })
+    const [loading, setLoading] = useState(false)
+    const formField = useRef<HTMLFormElement>(null)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({
@@ -15,8 +20,38 @@ export default function Login() {
         })
     }
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
+
+        setLoading(true)
+        const response = login(form.username, form.email, form.password)
+
+        toast.promise(response, {
+            pending: 'Logging in...',
+            success: 'Login successful',
+            error: {
+                render({ data }) {
+                    const error = data as Error
+                    return (
+                        error.response.data.message || error.response.data.error || 'Login failed'
+                    )
+                },
+            },
+        })
+
+        response.then(() => {
+            setForm({
+                username: '',
+                email: '',
+                password: '',
+            })
+            formField.current?.reset()
+            setLoading(false)
+        })
+
+        response.catch(() => {
+            setLoading(false)
+        })
     }
 
     return (
@@ -29,7 +64,7 @@ export default function Login() {
                         Login to Your Account
                     </h2>
 
-                    <form onSubmit={onSubmit}>
+                    <form onSubmit={onSubmit} ref={formField}>
                         <div
                             style={{
                                 opacity: 0,
@@ -41,13 +76,11 @@ export default function Login() {
                             <label htmlFor="username" className="block text-gray-700 mb-2">
                                 Username
                             </label>
-                            <input
+                            <Input
                                 type="username"
-                                id="username"
-                                onChange={handleChange}
-                                name="username"
                                 value={form.username}
-                                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="john.doe"
+                                handleChange={handleChange}
                             />
                         </div>
 
@@ -55,13 +88,11 @@ export default function Login() {
                             <label htmlFor="email" className="block text-gray-700 mb-2">
                                 Email
                             </label>
-                            <input
+                            <Input
                                 type="email"
-                                id="email"
-                                onChange={handleChange}
-                                name="email"
                                 value={form.email}
-                                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="john.doe@example.com"
+                                handleChange={handleChange}
                                 required
                             />
                         </div>
@@ -70,20 +101,19 @@ export default function Login() {
                             <label htmlFor="password" className="block text-gray-700 mb-2">
                                 Password
                             </label>
-                            <input
+                            <Input
                                 type="password"
-                                id="password"
-                                onChange={handleChange}
-                                name="password"
                                 value={form.password}
-                                className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="********"
+                                handleChange={handleChange}
                                 required
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition"
+                            disabled={loading}
+                            className={`w-full py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition ${loading ? 'cursor-not-allowed opacity-50' : ''}`}
                         >
                             Login
                         </button>

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faLaravel } from '@fortawesome/free-brands-svg-icons'
 import { faBars, faSearch } from '@fortawesome/free-solid-svg-icons'
 import routes from '../../routes'
-import Brand from './Brand'
+import Brand from '../shared/Brand'
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)

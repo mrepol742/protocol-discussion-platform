@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Thread;
 use App\Models\Comment;
+use App\Models\Vote;
 
 class VoteController extends Controller
 {
     /**
      * Handle voting on threads and comments.
+     *
+     * @param Request $request
+     * @return Vote
      */
     public function vote(Request $request): Vote
     {
