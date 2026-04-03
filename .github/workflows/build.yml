@@ -113,6 +113,9 @@ jobs:
     - name: Run migrations
       run: php artisan migrate --force
 
+    - name: Install dependencies for client
+      run: npm ci
+
     - name: Build project
       run: npm run build
 
