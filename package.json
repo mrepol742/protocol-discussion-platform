@@ -14,7 +14,6 @@
         "@types/react-router-dom": "^5.3.3",
         "@typescript-eslint/eslint-plugin": "^8.58.0",
         "@typescript-eslint/parser": "^8.58.0",
-        "autoprefixer": "^10.4.27",
         "axios": "^1.14.0",
         "concurrently": "^9.2.1",
         "eslint": "^9.0.0",
@@ -37,9 +36,8 @@
         "@fortawesome/free-solid-svg-icons": "^7.2.0",
         "@fortawesome/react-fontawesome": "^3.3.0",
         "@popperjs/core": "^2.11.8",
+        "@tailwindcss/vite": "^4.2.2",
         "@vitejs/plugin-react": "^6.0.1",
-        "bootstrap": "^5.3.8",
-        "bootstrap-icons": "^1.13.1",
         "date-fns": "^4.1.0",
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-hooks": "^7.0.1",
@@ -48,10 +46,10 @@
         "js-cookies": "^1.0.4",
         "prop-types": "^15.8.1",
         "react": "^19.2.4",
-        "react-bootstrap": "^2.10.10",
         "react-dom": "^19.2.4",
         "react-redux": "^9.2.0",
         "react-router-dom": "^7.13.2",
-        "redux": "^5.0.1"
+        "redux": "^5.0.1",
+        "tailwindcss": "^4.2.2"
     }
 }

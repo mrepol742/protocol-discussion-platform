@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+.lora-400 {
+    font-family: 'Lora', serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Lora', sans-serif;
+}
