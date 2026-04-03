@@ -3,8 +3,9 @@ name: Build CI
 on:
   push:
     branches: [ "master" ]
-  pull_request:
+  pull_request_target:
     branches: [ "master" ]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -33,6 +34,7 @@ jobs:
 
 
   server-build:
+    needs: client-build
     runs-on: ubuntu-latest
 
     services:
@@ -61,6 +63,11 @@ jobs:
         extensions: mbstring, bcmath, pdo_mysql
         coverage: none
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
 
@@ -79,7 +86,7 @@ jobs:
     - name: Copy .env
       run: cp .env.example .env
 
-    - name: Configure database
+    - name: Configure environment variables
       run: |
         echo "DB_CONNECTION=mysql" >> .env
         echo "DB_HOST=127.0.0.1" >> .env
@@ -87,6 +94,14 @@ jobs:
         echo "DB_DATABASE=protocol_discussion_platform" >> .env
         echo "DB_USERNAME=protocol_discussion_platform" >> .env
         echo "DB_PASSWORD=secret_password_of_root" >> .env
+
+        echo "SCOUT_DRIVER=${{ secrets.SCOUT_DRIVER }}" >> .env
+
+        echo "TYPESENSE_HOST=${{ secrets.TYPESENSE_HOST }}" >> .env
+        echo "TYPESENSE_PORT=${{ secrets.TYPESENSE_PORT }}" >> .env
+        echo "TYPESENSE_PROTOCOL=${{ secrets.TYPESENSE_PROTOCOL }}" >> .env
+        echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}" >> .env
+
         php artisan key:generate
 
     - name: Wait for MySQL
@@ -98,8 +113,11 @@ jobs:
     - name: Run migrations
       run: php artisan migrate --force
 
+    - name: Build project
+      run: npm run build
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
-    # - name: Run test suite
-    #   run: composer run-script test
+    - name: Run test suite
+      run: php artisan test

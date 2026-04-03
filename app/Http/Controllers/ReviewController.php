@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Review;
+
+class ReviewController extends Controller
+{
+    /**
+     * Store a newly created review in storage.
+     */
+    public function store(Request $request): Review
+    {
+        return Review::updateOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'protocol_id' => $request->protocol_id,
+            ],
+            [
+                'rating' => $request->rating,
+                'feedback' => $request->feedback,
+            ]
+        );
+    }
+
+    /**
+     * Update the specified review in storage.
+     */
+    public function update(Request $request, Review $review): Review
+    {
+        $review->update($request->only('rating', 'feedback'));
+        return $review;
+    }
+
+    /**
+     * Remove the specified review from storage.
+     */
+    public function destroy(Review $review): \Illuminate\Http\Response
+    {
+        $review->delete();
+        return response()->noContent();
+    }
+}
