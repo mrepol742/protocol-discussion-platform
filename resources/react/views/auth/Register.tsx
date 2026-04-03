@@ -47,6 +47,7 @@ export default function Register() {
             },
         })
 
+        // Clear the form and reset loading state
         response.then(() => {
             setForm({
                 name: '',
@@ -59,6 +60,7 @@ export default function Register() {
             setLoading(false)
         })
 
+        // Handle any errors and reset loading state
         response.catch(() => {
             setLoading(false)
         })

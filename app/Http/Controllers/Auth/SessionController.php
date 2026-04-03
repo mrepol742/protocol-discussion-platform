@@ -18,7 +18,7 @@ class SessionController extends Controller
     {
         $user = $request->user();
 
-        if ($user && $user->status === 'active') {
+        if ($user) {
             return response()->json(
                 [
                     'message' => 'Session is active',

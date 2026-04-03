@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\Honeypot;
 use App\Rules\NotBadWord;
+use App\Rules\NotContainingUserInfo;
 use App\Rules\NotDisposableEmail;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,6 +38,7 @@ class RegisterController extends Controller
                 'required',
                 'string',
                 Password::min(8)->mixedCase()->letters()->numbers()->uncompromised(),
+                new NotContainingUserInfo(),
                 'confirmed',
             ],
         ]);

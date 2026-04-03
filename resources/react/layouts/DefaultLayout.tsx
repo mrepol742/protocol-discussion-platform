@@ -2,14 +2,25 @@ import { Outlet } from 'react-router-dom'
 import Navbar from '../components/ui/Navbar'
 import { ToastContainer } from 'react-toastify'
 import Footer from '../components/ui/Footer'
+import cookies from 'js-cookie'
+import { useEffect, useState } from 'react'
+import verifySession from '../services/auth/verify-session'
+import { UserProvider } from '../context/UserContext'
 
 export default function DefaultLayout() {
+    const isLoggedIn = !cookies.get('auth_token')
+
     return (
-        <div className="min-h-screen flex flex-col background-grid">
-            <Navbar />
-            <Outlet />
-            <Footer />
-            <ToastContainer />
-        </div>
+        <UserProvider>
+            <div className="min-h-screen flex flex-col background-grid">
+                <Navbar />
+
+                <Outlet />
+
+                {isLoggedIn && <Footer />}
+
+                <ToastContainer />
+            </div>
+        </UserProvider>
     )
 }

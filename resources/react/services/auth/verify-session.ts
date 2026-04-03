@@ -8,10 +8,10 @@ import axiosInstance from '../axios'
  * @param password - The user's password.
  * @returns A promise resolving to the login response or rejecting with an error.
  */
-export default function login(username: string, email: string, password: string) {
+export default function verifySession() {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .post('/auth/login', { username, email, password })
+            .get('/auth/verify-session')
             .then((response) => {
                 resolve(response)
             })

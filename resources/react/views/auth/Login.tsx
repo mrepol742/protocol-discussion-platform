@@ -3,6 +3,8 @@ import Brand from '../../components/shared/Brand'
 import login from '../../services/auth/login'
 import { toast } from 'react-toastify'
 import Input from '../../components/shared/Input'
+import cookies from 'js-cookie'
+import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
     const [form, setForm] = useState({
@@ -12,6 +14,7 @@ export default function Login() {
     })
     const [loading, setLoading] = useState(false)
     const formField = useRef<HTMLFormElement>(null)
+    const navigate = useNavigate()
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({
@@ -39,7 +42,10 @@ export default function Login() {
             },
         })
 
-        response.then(() => {
+        // Save the token to cookies and redirect to home page
+        response.then((response) => {
+            const token = response.data.token
+            cookies.set('auth_token', token, { expires: 7 })
             setForm({
                 username: '',
                 email: '',
@@ -47,8 +53,12 @@ export default function Login() {
             })
             formField.current?.reset()
             setLoading(false)
+            setTimeout(() => {
+                navigate('/')
+            }, 1000)
         })
 
+        // Handle any errors and reset loading state
         response.catch(() => {
             setLoading(false)
         })

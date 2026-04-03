@@ -1,3 +1,13 @@
+/**
+ * Input component for user authentication forms (login and registration).
+ *
+ * @param type - The type of input (e.g., 'text', 'email', 'password', 'password_confirmation').
+ * @param value - The current value of the input field.
+ * @param placeholder - The placeholder text for the input field.
+ * @param handleChange - The function to call when the input value changes.
+ * @param required - Whether the input field is required (default: false).
+ * @returns A styled input element with appropriate attributes based on the type.
+ */
 export default function Input({
     type,
     value,
@@ -13,7 +23,7 @@ export default function Input({
 }) {
     return (
         <input
-            type={type}
+            type={type === 'password_confirmation' ? 'password' : type}
             id={type}
             onChange={handleChange}
             name={type}
@@ -21,6 +31,9 @@ export default function Input({
             placeholder={placeholder}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required={required}
+            autoComplete={
+                type === 'password' || type === 'password_confirmation' ? 'new-password' : 'off'
+            }
         />
     )
 }

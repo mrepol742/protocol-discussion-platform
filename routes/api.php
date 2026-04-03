@@ -11,7 +11,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\VoteController;
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::middleware('throttle:9990,30')->group(function () {
+    Route::middleware('throttle:9999,30')->group(function () {
         Route::post('/login', [LoginController::class, 'login']);
         Route::post('/register', [RegisterController::class, 'register']);
     });

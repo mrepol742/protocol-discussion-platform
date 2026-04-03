@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Rules\Honeypot;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
@@ -38,26 +38,25 @@ class LoginController extends Controller
         $email = $request->input('email');
         $password = $request->input('password');
 
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
-            $user = Auth::user();
-            // support for one device login only, to prevent token spamming
-            // $user->tokens()->delete();
-            $token = $user->createToken('auth_token')->plainTextToken;
+        $user = User::where('email', $email)->first();
 
+        if (!$user || !Hash::check($password, $user->password)) {
             return response()->json(
                 [
-                    'message' => 'Login successful',
-                    'token' => $token,
+                    'message' => 'Invalid credentials',
                 ],
-                200,
+                401,
             );
         }
 
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return response()->json(
             [
-                'message' => 'Invalid credentials',
+                'message' => 'Login successful',
+                'token' => $token,
             ],
-            401,
+            200,
         );
     }
 }

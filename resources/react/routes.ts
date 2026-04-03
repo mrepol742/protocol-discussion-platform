@@ -1,5 +1,6 @@
 import { lazy } from 'react'
 import type { Route } from './types/route'
+import Logout from './views/auth/Logout'
 const Login = lazy(() => import('./views/auth/Login'))
 const Register = lazy(() => import('./views/auth/Register'))
 const Home = lazy(() => import('./views/Home'))
@@ -21,6 +22,13 @@ const routes: Route[] = [
         isFeatured: true,
         name: 'Register',
         element: Register,
+    },
+    {
+        path: '/auth/logout',
+        authRequired: true,
+        isAuth: false,
+        name: 'Logout',
+        element: Logout,
     },
 
     // app routes

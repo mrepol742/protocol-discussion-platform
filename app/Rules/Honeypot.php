@@ -19,6 +19,6 @@ class Honeypot implements Rule
      */
     public function message()
     {
-        return 'Spam detected.';
+        return 'Do not use automated tools. Please fill out the form manually.';
     }
 }

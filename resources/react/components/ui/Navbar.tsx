@@ -1,17 +1,37 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faLaravel } from '@fortawesome/free-brands-svg-icons'
 import { faBars, faSearch } from '@fortawesome/free-solid-svg-icons'
 import routes from '../../routes'
 import Brand from '../shared/Brand'
+import cookies from 'js-cookie'
+import { useUser } from '../../context/UserContext'
+import UserMenu from './UserMenu'
 
 export default function Navbar() {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const isLoggedIn = !cookies.get('auth_token')
+    const { user } = useUser()
+    const navRef = useRef(null)
 
     const toggleMenu = () => setIsMenuOpen((prev) => !prev)
 
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (navRef.current && !navRef.current.contains(event.target)) {
+                setIsMenuOpen(false)
+            }
+        }
+        document.addEventListener('pointerdown', handleClickOutside)
+        return () => {
+            document.removeEventListener('pointerdown', handleClickOutside)
+        }
+    }, [])
+
     return (
-        <nav className="bg-neutral-primary fixed w-full z-20 top-0 start-0 border-b border-default">
+        <nav
+            ref={navRef}
+            className="bg-white fixed w-full z-20 top-0 start-0 border-b border-default"
+        >
             <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
                 <Brand />
 
@@ -27,6 +47,8 @@ export default function Navbar() {
                         />
                     </div>
 
+                    <UserMenu user={user} />
+
                     <button
                         onClick={toggleMenu}
                         type="button"
@@ -40,9 +62,9 @@ export default function Navbar() {
                 </div>
 
                 <div
-                    className={`items-center justify-between w-full md:flex md:w-auto md:order-1 transition-all duration-300 ${
-                        isMenuOpen ? 'block' : 'hidden'
-                    }`}
+                    className={`w-full md:flex md:w-auto md:order-1 transition-all duration-300 ease-out transform origin-top
+                    ${isMenuOpen ? 'opacity-100 scale-y-100 max-h-screen' : 'opacity-0 scale-y-0 max-h-0 overflow-hidden'}
+                  `}
                     id="navbar-search"
                 >
                     <div className="relative mt-8 md:hidden">
@@ -56,22 +78,22 @@ export default function Navbar() {
                         />
                     </div>
 
-                    <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-default rounded-base bg-neutral-secondary-soft md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-neutral-primary">
-                        {routes.map((route, index) => (
-                            <>
-                                {route.isFeatured && (
-                                    <li key={index}>
+                    {isLoggedIn && (
+                        <ul className="font-medium flex flex-col p-4 md:p-0 mt-4 border border-default rounded-base bg-neutral-secondary-soft md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-neutral-primary">
+                            {routes.map((route, index) => (
+                                <li key={index}>
+                                    {route.isFeatured && (
                                         <a
                                             href={route.path}
                                             className="block py-2 px-3 text-heading rounded hover:bg-neutral-tertiary md:hover:bg-transparent md:border-0 md:hover:text-fg-brand md:p-0"
                                         >
                                             {route.name}
                                         </a>
-                                    </li>
-                                )}
-                            </>
-                        ))}
-                    </ul>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
                 </div>
             </div>
         </nav>
