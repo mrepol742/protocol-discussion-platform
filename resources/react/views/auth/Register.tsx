@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react'
 import Brand from '../../components/shared/Brand'
-import register from '../../services/auth/register'
 import { toast } from 'react-toastify'
 import Input from '../../components/shared/Input'
+import { register } from '../../services/auth'
 
 export default function Register() {
     const [form, setForm] = useState({

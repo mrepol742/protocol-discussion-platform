@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\NotBadWord;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Models\Comment;
+use Illuminate\Support\Facades\Validator;
 
 class CommentController extends Controller
 {
@@ -15,12 +18,39 @@ class CommentController extends Controller
      */
     public function store(Request $request): Comment
     {
+        $validator = Validator::make($request->all(), [
+            'body' => ['required', 'string', 'max:255', new NotBadWord()],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
+
         return Comment::create([
             'body' => $request->body,
             'thread_id' => $request->thread_id,
             'user_id' => auth()->id(),
             'parent_id' => $request->parent_id,
         ]);
+    }
+
+    /**
+     * Display the specified comment along with its replies.
+     *
+     * @param int $id
+     * @return LengthAwarePaginator
+     */
+    public function show($id): LengthAwarePaginator
+    {
+        return Comment::where('thread_id', $id)
+            ->with(['user', 'replies', 'votes'])
+            ->latest()
+            ->paginate(10);
     }
 
     /**
@@ -31,8 +61,21 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment): Comment
     {
+        $validator = Validator::make($request->all(), [
+            'body' => ['required', 'string', 'max:255', new NotBadWord()],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
+
         $comment->update([
-            'body' => $request->body
+            'body' => $request->body,
         ]);
 
         return $comment;

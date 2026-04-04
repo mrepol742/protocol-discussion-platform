@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Protocol;
+use App\Rules\NotBadWord;
 use Illuminate\Http\Request;
 use App\Models\Thread;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Validator;
 
 class ThreadController extends Controller
 {
@@ -28,6 +31,21 @@ class ThreadController extends Controller
      */
     public function store(Request $request): Thread
     {
+        $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255', new NotBadWord()],
+            'body' => ['required', 'string', new NotBadWord()],
+            'protocol_id' => 'required|exists:protocols,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
+
         $thread = Thread::create([
             'title' => $request->title,
             'body' => $request->body,
@@ -38,15 +56,20 @@ class ThreadController extends Controller
         return $thread;
     }
 
+    public function getThreadInfo($id): Thread
+    {
+        return Thread::with('protocol')->findOrFail($id);
+    }
+
     /**
      * Display the specified thread along with its comments.
      *
-     * @param Thread $thread
-     * @return Thread
+     * @param int $id
+     * @return LengthAwarePaginator
      */
-    public function show(Thread $thread): Thread
+    public function show($id): LengthAwarePaginator
     {
-        return $thread->load('comments');
+        return Thread::where('protocol_id', $id)->latest()->paginate(10);
     }
 
     /**
@@ -58,6 +81,20 @@ class ThreadController extends Controller
      */
     public function update(Request $request, Thread $thread): Thread
     {
+        $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255', new NotBadWord()],
+            'body' => ['required', 'string', new NotBadWord()],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
+
         $thread->update($request->only('title', 'body'));
 
         return $thread;

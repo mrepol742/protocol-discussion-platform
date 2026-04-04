@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Protocol;
+use App\Rules\NotBadWord;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -18,7 +19,7 @@ class ProtocolController extends Controller
      */
     public function index(): LengthAwarePaginator
     {
-        return Protocol::latest()->paginate(10);
+        return Protocol::with('author')->latest()->paginate(10);
     }
 
     /**
@@ -30,14 +31,19 @@ class ProtocolController extends Controller
     public function store(Request $request): Response
     {
         $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => ['required', 'string', 'max:255', new NotBadWord()],
+            'content' => ['required', 'string', new NotBadWord()],
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
         }
 
         $protocol = Protocol::create([
@@ -51,14 +57,14 @@ class ProtocolController extends Controller
     }
 
     /**
-     * Display the specified protocol along with its threads and reviews.
+     * Display the specified protocol.
      *
-     * @param Protocol $protocol
+     * @param int $id
      * @return Protocol
      */
-    public function show(Protocol $protocol): Protocol
+    public function show($id): Protocol
     {
-        return $protocol->load('threads', 'reviews');
+        return Protocol::with('author')->findOrFail($id);
     }
 
     /**
@@ -70,6 +76,22 @@ class ProtocolController extends Controller
      */
     public function update(Request $request, Protocol $protocol): Protocol
     {
+        $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255', new NotBadWord()],
+            'content' => ['required', 'string', new NotBadWord()],
+            'tags' => 'nullable|array',
+            'tags.*' => 'string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
+
         $protocol->update($request->only('title', 'content', 'tags'));
 
         return $protocol;

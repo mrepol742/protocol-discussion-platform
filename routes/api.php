@@ -11,7 +11,7 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\VoteController;
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::middleware('throttle:9999,30')->group(function () {
+    Route::middleware('throttle:10,30')->group(function () {
         Route::post('/login', [LoginController::class, 'login']);
         Route::post('/register', [RegisterController::class, 'register']);
     });
@@ -25,9 +25,15 @@ Route::group(['prefix' => 'auth'], function () {
 Route::get('protocols/search', [ProtocolController::class, 'search']);
 Route::apiResource('protocols', ProtocolController::class);
 
+Route::get('threads/{id}/info', [ThreadController::class, 'getThreadInfo']);
+Route::get('threads/{id}', [ThreadController::class, 'show']);
 Route::get('threads/search', [ProtocolController::class, 'search']);
 Route::apiResource('threads', ThreadController::class);
+
+Route::get('comments/{id}', [CommentController::class, 'show']);
 Route::apiResource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
+
+Route::get('reviews/{id}', [ReviewController::class, 'show']);
 Route::apiResource('reviews', ReviewController::class)->only(['store', 'update', 'destroy']);
 
 // Voting

@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import Brand from '../../components/shared/Brand'
-import login from '../../services/auth/login'
 import { toast } from 'react-toastify'
 import Input from '../../components/shared/Input'
 import cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
+import { login } from '../../services/auth'
 
 export default function Login() {
     const [form, setForm] = useState({

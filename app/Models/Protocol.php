@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
 
 class Protocol extends Model
@@ -40,7 +42,7 @@ class Protocol extends Model
     /**
      * Get the threads for the protocol.
      */
-    public function threads(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function threads(): HasMany
     {
         return $this->hasMany(Thread::class);
     }
@@ -48,8 +50,16 @@ class Protocol extends Model
     /**
      * Get the reviews for the protocol.
      */
-    public function reviews(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the author of the protocol.
+     */
+    public function author(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

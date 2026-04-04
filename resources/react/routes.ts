@@ -1,9 +1,12 @@
 import { lazy } from 'react'
 import type { Route } from './types/route'
-import Logout from './views/auth/Logout'
+import NotFound from './errors/NotFound'
+const Logout = lazy(() => import('./views/auth/Logout'))
 const Login = lazy(() => import('./views/auth/Login'))
 const Register = lazy(() => import('./views/auth/Register'))
-const Home = lazy(() => import('./views/Home'))
+const Protocols = lazy(() => import('./views/Protocols'))
+const Threads = lazy(() => import('./views/Threads'))
+const Comments = lazy(() => import('./views/Comments'))
 
 const routes: Route[] = [
     // auth routes
@@ -37,7 +40,28 @@ const routes: Route[] = [
         authRequired: false,
         isAuth: false,
         name: 'Protocols',
-        element: Home,
+        element: Protocols,
+    },
+    {
+        path: 'protocols/:protocolId',
+        authRequired: false,
+        isAuth: false,
+        name: 'Threads',
+        element: Threads,
+    },
+    {
+        path: 'protocols/:protocolId/threads/:threadId',
+        authRequired: false,
+        isAuth: false,
+        name: 'Comments',
+        element: Comments,
+    },
+    {
+        path: '*',
+        authRequired: false,
+        isAuth: false,
+        name: 'NotFound',
+        element: NotFound,
     },
 ]
 

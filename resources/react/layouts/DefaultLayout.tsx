@@ -3,8 +3,6 @@ import Navbar from '../components/ui/Navbar'
 import { ToastContainer } from 'react-toastify'
 import Footer from '../components/ui/Footer'
 import cookies from 'js-cookie'
-import { useEffect, useState } from 'react'
-import verifySession from '../services/auth/verify-session'
 import { UserProvider } from '../context/UserContext'
 
 export default function DefaultLayout() {
@@ -15,7 +13,9 @@ export default function DefaultLayout() {
             <div className="min-h-screen flex flex-col background-grid">
                 <Navbar />
 
-                <Outlet />
+                <div className="min-h-screen pt-16">
+                    <Outlet />
+                </div>
 
                 {isLoggedIn && <Footer />}
 

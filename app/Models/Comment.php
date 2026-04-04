@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Comment extends Model
 {
@@ -14,7 +17,7 @@ class Comment extends Model
     /**
      * The attributes that are mass assignable.
      */
-    public function replies(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function replies(): HasMany
     {
         return $this->hasMany(Comment::class, 'parent_id');
     }
@@ -22,8 +25,24 @@ class Comment extends Model
     /**
      * Get the thread that owns the comment.
      */
-    public function votes(): \Illuminate\Database\Eloquent\Relations\MorphMany
+    public function votes(): MorphMany
     {
         return $this->morphMany(Vote::class, 'votable');
+    }
+
+    /**
+     * Get the thread that owns the comment.
+     */
+    public function thread(): BelongsTo
+    {
+        return $this->belongsTo(Thread::class);
+    }
+
+    /**
+     * Get the user that owns the comment.
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect } from 'react'
-import verifySession from '../services/auth/verify-session'
 import type { ReactNode } from 'react'
 import type { User, UserContextType } from '../types/user'
 import cookies from 'js-cookie'
+import { verifySession } from '../services/auth'
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
 

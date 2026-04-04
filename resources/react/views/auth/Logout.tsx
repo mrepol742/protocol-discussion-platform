@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import axiosInstance from '../../services/axios'
 import cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
+import { logout } from '../../services/auth'
 
 export default function Logout() {
     const isLoggedIn = !cookies.get('auth_token')
@@ -12,9 +12,8 @@ export default function Logout() {
     const handleLogout = () => {
         if (isLoggedIn) return
 
-        axiosInstance
-            .post('/auth/logout')
-            .then(() => {
+        logout()
+            .then((response) => {
                 cookies.remove('auth_token')
                 window.location.href = '/'
             })

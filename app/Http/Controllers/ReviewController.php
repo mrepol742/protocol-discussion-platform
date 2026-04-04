@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Review;
 use Illuminate\Http\Response;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
@@ -16,6 +18,19 @@ class ReviewController extends Controller
      */
     public function store(Request $request): Review
     {
+        $validator = Validator::make($request->all(), [
+            'protocol_id' => "required|exists:protocols,id",
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(
+                [
+                    'error' => $validator->errors()->first(),
+                ],
+                422,
+            );
+        }
+
         return Review::updateOrCreate(
             [
                 'user_id' => auth()->id(),
@@ -24,8 +39,19 @@ class ReviewController extends Controller
             [
                 'rating' => $request->rating,
                 'feedback' => $request->feedback,
-            ]
+            ],
         );
+    }
+
+    /**
+     * Display the specified thread along with its comments.
+     *
+     * @param int $id
+     * @return LengthAwarePaginator
+     */
+    public function show($id): LengthAwarePaginator
+    {
+        return Review::where('protocol_id', $id)->with('user')->latest()->paginate(10);
     }
 
     /**
