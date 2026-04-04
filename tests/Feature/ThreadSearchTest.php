@@ -18,10 +18,12 @@ class ThreadSearchTest extends TestCase
 
         $protocol = Protocol::factory()->create([
             'title' => 'Security API Thread',
+            'content' => 'This protocol is about security APIs.',
         ]);
 
         Thread::factory()->create([
             'title' => 'Security API Thread',
+            'body' => 'Discussion about security APIs.',
             'protocol_id' => $protocol->id,
             'user_id' => $user->id,
         ]);
@@ -30,8 +32,8 @@ class ThreadSearchTest extends TestCase
 
         $response->assertOk();
 
-        $response->assertJsonPath('0.title', 'Security API Thread');
+        $response->assertJsonPath('data.0.title', 'Security API Thread');
 
-        $this->assertCount(1, $response->json());
+        $this->assertCount(1, $response->json('data'));
     }
 }

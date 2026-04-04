@@ -120,6 +120,11 @@ class ThreadController extends Controller
      */
     public function search(Request $request): Collection
     {
-        return Thread::search($request->q)->get();
+        $request->validate(['q' => 'required|string']);
+        return Thread::search($request->q)
+            ->options([
+                'query_by' => 'title, body, tags',
+            ])
+            ->paginate(10);
     }
 }

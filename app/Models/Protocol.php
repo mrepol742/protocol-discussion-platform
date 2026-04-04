@@ -26,6 +26,7 @@ class Protocol extends Model
         return array_merge($this->toArray(), [
             'id' => (string) $this->id,
             'title' => $this->title,
+            'content' => $this->content,
             'tags' => $this->tags ?? [],
             'votes' => $this->votes ?? 0,
         ]);

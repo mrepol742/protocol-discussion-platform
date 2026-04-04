@@ -113,15 +113,15 @@ class ProtocolController extends Controller
      * Search for protocols based on a query string.
      *
      * @param Request $request
-     * @return Collection
+     * @return LengthAwarePaginator
      */
-    public function search(Request $request): Collection
+    public function search(Request $request): LengthAwarePaginator
     {
         $request->validate(['q' => 'required|string']);
         return Protocol::search($request->q)
             ->options([
-                'query_by' => 'title, tags',
+                'query_by' => 'title, content, tags',
             ])
-            ->get();
+            ->paginate(10);
     }
 }

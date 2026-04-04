@@ -41,3 +41,9 @@ A content-first discussion platform where users can post structured protocols, c
 ```
   php artisan optimize
 ```
+
+## Typesense
+```
+php artisan app:clear-typesense-collections
+php artisan app:seed-typesense-collections
+```

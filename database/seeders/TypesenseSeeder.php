@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Typesense\Client;
+use Typesense\Exceptions\ObjectAlreadyExists;
 
 class TypesenseSeeder extends Seeder
 {
@@ -27,12 +28,13 @@ class TypesenseSeeder extends Seeder
                 'fields' => [
                     ['name' => 'id', 'type' => 'string'],
                     ['name' => 'title', 'type' => 'string'],
+                    ['name' => 'content', 'type' => 'string'],
                     ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
                     ['name' => 'votes', 'type' => 'int32'],
                 ],
                 'default_sorting_field' => 'votes',
             ]);
-        } catch (\Typesense\Exceptions\ObjectAlreadyExists $e) {
+        } catch (ObjectAlreadyExists $e) {
         }
 
         // Threads collection
@@ -46,7 +48,7 @@ class TypesenseSeeder extends Seeder
                     ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
                 ],
             ]);
-        } catch (\Typesense\Exceptions\ObjectAlreadyExists $e) {
+        } catch (ObjectAlreadyExists $e) {
         }
     }
 }

@@ -14,6 +14,7 @@ class ProtocolSearchTest extends TestCase
     {
         Protocol::factory()->create([
             'title' => 'Security API Protocol',
+            'content' => 'This protocol is about security APIs.',
             'tags' => ['security', 'api'],
         ]);
 
@@ -21,8 +22,8 @@ class ProtocolSearchTest extends TestCase
 
         $response->assertOk();
 
-        $response->assertJsonPath('0.title', 'Security API Protocol');
+        $response->assertJsonPath('data.0.title', 'Security API Protocol');
 
-        $this->assertCount(1, $response->json());
+        $this->assertCount(1, $response->json('data'));
     }
 }

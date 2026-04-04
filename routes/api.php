@@ -25,9 +25,9 @@ Route::group(['prefix' => 'auth'], function () {
 Route::get('protocols/search', [ProtocolController::class, 'search']);
 Route::apiResource('protocols', ProtocolController::class);
 
+Route::get('threads/search', [ProtocolController::class, 'search']);
 Route::get('threads/{id}/info', [ThreadController::class, 'getThreadInfo']);
 Route::get('threads/{id}', [ThreadController::class, 'show']);
-Route::get('threads/search', [ProtocolController::class, 'search']);
 Route::apiResource('threads', ThreadController::class);
 
 Route::get('comments/{id}', [CommentController::class, 'show']);
