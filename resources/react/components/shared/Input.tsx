@@ -9,12 +9,14 @@
  * @returns A styled input element with appropriate attributes based on the type.
  */
 export default function Input({
+    name,
     type,
     value,
     placeholder,
     handleChange,
     required = false,
 }: {
+    name: string
     type: string
     value: string
     placeholder: string
@@ -23,16 +25,16 @@ export default function Input({
 }) {
     return (
         <input
-            type={type === 'password_confirmation' ? 'password' : type}
-            id={type}
+            type={type}
+            id={name}
             onChange={handleChange}
-            name={type}
+            name={name}
             value={value}
             placeholder={placeholder}
             className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
             required={required}
             autoComplete={
-                type === 'password' || type === 'password_confirmation' ? 'new-password' : 'off'
+                name === 'password' || name === 'password_confirmation' ? 'new-password' : 'off'
             }
         />
     )

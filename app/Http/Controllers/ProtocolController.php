@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Protocol;
 use App\Rules\NotBadWord;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -26,13 +27,19 @@ class ProtocolController extends Controller
      * Store a newly created protocol in storage.
      *
      * @param Request $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function store(Request $request): Response
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => ['required', 'string', 'max:255', new NotBadWord()],
-            'content' => ['required', 'string', new NotBadWord()],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:protocols,title',
+                new NotBadWord(),
+            ],
+            'content' => ['required', 'string', 'unique:protocols,content', new NotBadWord()],
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
@@ -77,8 +84,14 @@ class ProtocolController extends Controller
     public function update(Request $request, Protocol $protocol): Protocol
     {
         $validator = Validator::make($request->all(), [
-            'title' => ['required', 'string', 'max:255', new NotBadWord()],
-            'content' => ['required', 'string', new NotBadWord()],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:protocols,title',
+                new NotBadWord(),
+            ],
+            'content' => ['required', 'string', 'unique:protocols,content', new NotBadWord()],
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);

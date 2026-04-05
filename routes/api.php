@@ -22,8 +22,15 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
+/**
+ * This was seperated into two resource controllers to allow for unauthenticated users to view protocols and threads,
+ * but only authenticated users can create, update, or delete them.
+ */
 Route::get('protocols/search', [ProtocolController::class, 'search']);
-Route::apiResource('protocols', ProtocolController::class);
+Route::apiResource('protocols', ProtocolController::class)->only(['index', 'show']);
+Route::apiResource('protocols', ProtocolController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware('auth:sanctum');
 
 Route::get('threads/search', [ProtocolController::class, 'search']);
 Route::get('threads/{id}/info', [ThreadController::class, 'getThreadInfo']);

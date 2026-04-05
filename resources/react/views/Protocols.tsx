@@ -6,12 +6,24 @@ import { useNavigate } from 'react-router-dom'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import ProtocolModal from '../components/modal/ProtocolModal'
+import ModalContainer from '../components/shared/ModalContainer'
+import { useUser } from '../context/UserContext'
+import ProtocolCard from '../components/card/ProtocolCard'
 
 const Home = () => {
     const [protocols, setProtocols] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const [lastPage, setLastPage] = useState(1)
     const [loading, setLoading] = useState(false)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [modalAction, setModalAction] = useState<'create' | 'edit'>('create')
+    const [selectedProtocol, setSelectedProtocol] = useState<any>({
+        title: '',
+        content: '',
+        tags: [],
+    })
+    const { user } = useUser()
     const navigate = useNavigate()
 
     const fetchProtocols = async (page = 1) => {
@@ -53,37 +65,45 @@ const Home = () => {
         <>
             <Navbar />
 
+            <ModalContainer isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <ProtocolModal
+                    form={selectedProtocol}
+                    modalAction={modalAction}
+                    isOpen={isModalOpen}
+                    setIsOpen={setIsModalOpen}
+                    fetchProtocols={fetchProtocols}
+                />
+            </ModalContainer>
+
             <div className="container mx-auto px-4 py-8">
+                {user && (
+                    <div className="flex justify-end mb-3">
+                        <button
+                            onClick={() => {
+                                setIsModalOpen(true)
+                                setModalAction('create')
+                                setSelectedProtocol({
+                                    title: '',
+                                    content: '',
+                                    tags: [],
+                                })
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+                        >
+                            Create Protocol
+                        </button>
+                    </div>
+                )}
+
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
                     {protocols.map((protocol: any) => (
-                        <div
+                        <ProtocolCard
                             key={protocol.id}
-                            className="border p-3 mb-2 rounded hover:scale-101 transition-transform cursor-pointer"
+                            protocol={protocol}
                             onClick={() => navigate(`/protocols/${protocol.id}`)}
-                        >
-                            <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                                {protocol.title}
-                            </h2>
-                            <p className="text-gray-600 mb-2">{protocol.content}</p>
-
-                            <small className="text-gray-500">
-                                by {protocol.author.name} on{' '}
-                                {new Date(protocol.created_at).toLocaleDateString()}
-                            </small>
-
-                            {protocol.tags && (
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {protocol.tags.map((tag: string, idx: number) => (
-                                        <span
-                                            key={idx}
-                                            className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full"
-                                        >
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
+                            onUpdate={(p) => console.log('Update', p)}
+                            onDelete={(p) => console.log('Delete', p)}
+                        />
                     ))}
                 </div>
 

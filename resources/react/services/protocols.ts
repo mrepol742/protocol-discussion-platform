@@ -39,16 +39,17 @@ export function getProtocol(protocolId: number) {
 }
 
 /**
- * Creates a new protocol with the given title and description
+ * Creates a new protocol with the given title and content
  *
  * @param title - The title of the protocol to create
- * @param description - The description of the protocol to create
+ * @param content - The content of the protocol to create
+ * @param tags - An optional array of tags to associate with the protocol
  * @returns A promise that resolves with the response containing the created protocol or rejects with an error
  */
-export function createProtocol(title: string, description: string) {
+export function createProtocol(title: string, content: string, tags: string[] = []) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .post('/protocols', { title, description })
+            .post('/protocols', { title, content, tags })
             .then((response) => {
                 resolve(response)
             })
@@ -59,17 +60,18 @@ export function createProtocol(title: string, description: string) {
 }
 
 /**
- * Updates an existing protocol with the given ID, title, and description
+ * Updates an existing protocol with the given ID, title, and content
  *
  * @param protocolId - The ID of the protocol to update
  * @param title - The new title of the protocol
- * @param description - The new description of the protocol
+ * @param content - The new content of the protocol
+ * @param tags - An optional array of new tags to associate with the protocol
  * @returns A promise that resolves with the response containing the updated protocol or rejects with an error
  */
-export function updateProtocol(protocolId: number, title: string, description: string) {
+export function updateProtocol(protocolId: number, title: string, content: string, tags: string[] = []) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .put(`/protocols/${protocolId}`, { title, description })
+            .put(`/protocols/${protocolId}`, { title, content, tags })
             .then((response) => {
                 resolve(response)
             })

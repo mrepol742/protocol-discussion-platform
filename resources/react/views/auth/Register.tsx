@@ -80,7 +80,8 @@ export default function Register() {
                                 Name
                             </label>
                             <Input
-                                type="name"
+                                name="name"
+                                type="text"
                                 value={form.name}
                                 placeholder="John Doe"
                                 handleChange={handleChange}
@@ -99,6 +100,7 @@ export default function Register() {
                                 Username
                             </label>
                             <Input
+                                name="username"
                                 type="username"
                                 value={form.username}
                                 placeholder="john.doe"
@@ -110,6 +112,7 @@ export default function Register() {
                                 Email
                             </label>
                             <Input
+                                name="email"
                                 type="email"
                                 value={form.email}
                                 placeholder="john.doe@example.com"
@@ -122,7 +125,8 @@ export default function Register() {
                                 Password
                             </label>
                             <Input
-                                type="password"
+                                name="password"
+                                type="new-password"
                                 value={form.password}
                                 placeholder="********"
                                 handleChange={handleChange}
@@ -137,7 +141,8 @@ export default function Register() {
                                 Confirm Password
                             </label>
                             <Input
-                                type="password_confirmation"
+                                name="password_confirmation"
+                                type="new-password"
                                 value={form.password_confirmation}
                                 placeholder="********"
                                 handleChange={handleChange}

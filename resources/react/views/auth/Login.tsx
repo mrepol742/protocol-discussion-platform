@@ -87,6 +87,7 @@ export default function Login() {
                                 Username
                             </label>
                             <Input
+                                name="username"
                                 type="username"
                                 value={form.username}
                                 placeholder="john.doe"
@@ -99,6 +100,7 @@ export default function Login() {
                                 Email
                             </label>
                             <Input
+                                name="email"
                                 type="email"
                                 value={form.email}
                                 placeholder="john.doe@example.com"
@@ -112,6 +114,7 @@ export default function Login() {
                                 Password
                             </label>
                             <Input
+                                name="password"
                                 type="password"
                                 value={form.password}
                                 placeholder="********"
