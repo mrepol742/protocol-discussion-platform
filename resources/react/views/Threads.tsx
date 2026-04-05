@@ -7,6 +7,11 @@ import { getReviews } from '../services/reviews'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import ModalContainer from '../components/shared/ModalContainer'
+import ThreadModal from '../components/modal/ThreadModal'
+import { useUser } from '../context/UserContext'
+import ThreadCard from '../components/card/ThreadCard'
+import ReviewModal from '../components/modal/ReviewModal'
 
 export default function Threads() {
     const { protocolId } = useParams<{ protocolId: string }>()
@@ -18,27 +23,53 @@ export default function Threads() {
     const [threadLastPage, setThreadLastPage] = useState(1)
     const [reviewCurrentPage, setReviewCurrentPage] = useState(1)
     const [reviewLastPage, setReviewLastPage] = useState(1)
+    const [isThreadModalOpen, setIsThreadModalOpen] = useState(false)
+    const [modalThreadAction, setModalThreadAction] = useState<'create' | 'edit'>('create')
+    const [selectedThread, setSelectedThread] = useState({
+        protocol_id: -1,
+        title: '',
+        body: '',
+    })
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
+    const [modalReviewAction, setModalReviewAction] = useState<'create' | 'edit'>('create')
+    const [selectedReview, setSelectedReview] = useState({
+        protocol_id: -1,
+        user_id: -1,
+        rating: 0,
+        feedback: '',
+    })
+    const { user } = useUser()
     const navigate = useNavigate()
 
-    const fetchData = async () => {
+    const fetchThreads = async () => {
         if (!protocolId) return
+
+        const threadsResponse = await getThreads(Number(protocolId), threadCurrentPage)
+        setThreads(threadsResponse.data.data)
+        setThreadCurrentPage(threadsResponse.data.current_page)
+        setThreadLastPage(threadsResponse.data.last_page)
+    }
+
+    const fetchReviews = async () => {
+        if (!protocolId) return
+        const reviewsResponse = await getReviews(Number(protocolId), threadCurrentPage)
+
+        setReviews(reviewsResponse.data.data)
+        setReviewCurrentPage(reviewsResponse.data.current_page)
+        setReviewLastPage(reviewsResponse.data.last_page)
+    }
+
+    const fetchProtocol = async () => {
+        if (!protocolId) return
+
+        const protocolResponse = await getProtocol(Number(protocolId))
+        setProtocol(protocolResponse.data)
+    }
+
+    const fetchAll = async () => {
         setLoading(true)
-
         try {
-            const [protocolResponse, threadsResponse, reviewsResponse] = await Promise.all([
-                getProtocol(Number(protocolId)),
-                getThreads(Number(protocolId), threadCurrentPage),
-                getReviews(Number(protocolId), threadCurrentPage),
-            ])
-            setProtocol(protocolResponse.data)
-
-            setThreads(threadsResponse.data.data)
-            setThreadCurrentPage(threadsResponse.data.current_page)
-            setThreadLastPage(threadsResponse.data.last_page)
-
-            setReviews(reviewsResponse.data.data)
-            setReviewCurrentPage(reviewsResponse.data.current_page)
-            setReviewLastPage(reviewsResponse.data.last_page)
+            await Promise.all([fetchProtocol(), fetchThreads(), fetchReviews()])
         } catch (error) {
             console.error('Error fetching data:', error)
         } finally {
@@ -47,7 +78,7 @@ export default function Threads() {
     }
 
     useEffect(() => {
-        fetchData()
+        fetchAll()
     }, [protocolId, threadCurrentPage])
 
     if (loading) return <Loading />
@@ -68,67 +99,159 @@ export default function Threads() {
         )
 
     return (
-        <div className="p-6">
-            <h1 className="text-4xl font-bold mb-2">{protocol.title}</h1>
-            <p className="text-lg text-gray-600 mb-2">{protocol.content}</p>
-            <small className="text-sm text-gray-500 block mb-1">By: {protocol.author.name}</small>
-            <small className="text-sm text-gray-500 block mb-4">
-                Created on: {new Date(protocol.created_at).toLocaleDateString()}
-            </small>
+        <>
+            <ModalContainer isOpen={isThreadModalOpen} onClose={() => setIsThreadModalOpen(false)}>
+                <ThreadModal
+                    form={selectedThread}
+                    modalAction={modalThreadAction}
+                    isOpen={isThreadModalOpen}
+                    setIsOpen={setIsThreadModalOpen}
+                    fetchThreads={fetchThreads}
+                />
+            </ModalContainer>
+            <ModalContainer isOpen={isReviewModalOpen} onClose={() => setIsReviewModalOpen(false)}>
+                <ReviewModal
+                    form={selectedReview}
+                    modalAction={modalReviewAction}
+                    isOpen={isReviewModalOpen}
+                    setIsOpen={setIsReviewModalOpen}
+                    fetchReviews={fetchReviews}
+                />
+            </ModalContainer>
 
-            <h2 className="text-2xl font-semibold mb-2">Threads</h2>
-            {threads.length === 0 && <p>No threads found.</p>}
+            <div className="container mx-auto px-4 py-8">
+                <h1 className="text-4xl font-bold mb-2">{protocol.title}</h1>
+                <p className="text-lg text-gray-600 mb-2">{protocol.content}</p>
+                <small className="text-sm text-gray-500 block mb-1">
+                    By: {protocol.author.name}
+                </small>
+                <small className="text-sm text-gray-500 block mb-4">
+                    Created on: {new Date(protocol.created_at).toLocaleDateString()}
+                </small>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {threads.map((thread) => (
-                    <div
-                        key={thread.id}
-                        className="border p-3 mb-2 rounded hover:scale-101 transition-transform cursor-pointer"
-                        onClick={() => navigate(`/protocols/${protocol.id}/threads/${thread.id}`)}
-                    >
-                        <h3 className="font-semibold">{thread.title}</h3>
-                        <p className="text-gray-600">{thread.body}</p>
+                <div className="flex justify-between items-center my-2">
+                    <h2 className="text-2xl font-semibold">Threads</h2>
+                    {user && (
+                        <div className="flex justify-end mb-3">
+                            <button
+                                onClick={() => {
+                                    setIsThreadModalOpen(true)
+                                    setModalThreadAction('create')
+                                    setSelectedThread({
+                                        protocol_id: Number(protocolId),
+                                        title: '',
+                                        body: '',
+                                    })
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+                            >
+                                Create Thread
+                            </button>
+                        </div>
+                    )}
+                </div>
 
-                        {thread.comments && thread.comments.length > 0 && (
-                            <ul className="mt-2 ml-4 border-l-2 border-gray-200 pl-2">
-                                {thread.comments.map((comment: any) => (
-                                    <li key={comment.id} className="mb-1">
-                                        <strong>{comment.user.name}:</strong> {comment.body}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-                ))}
+                {threads.length === 0 && <p>No threads found.</p>}
+
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {threads.map((thread) => (
+                        <ThreadCard
+                            key={thread.id}
+                            thread={thread}
+                            onClick={() =>
+                                navigate(`/protocols/${protocol.id}/threads/${thread.id}`)
+                            }
+                            onUpvote={(t) => console.log('Upvote', t)}
+                            onDownvote={(t) => console.log('Downvote', t)}
+                            onUpdate={(t) => console.log('Update', t)}
+                            onDelete={(t) => console.log('Delete', t)}
+                        />
+                    ))}
+                </div>
+
+                {threadLastPage > 1 && (
+                    <Pagination
+                        currentPage={threadCurrentPage}
+                        lastPage={threadLastPage}
+                        loading={loading}
+                        setCurrentPage={setThreadCurrentPage}
+                    />
+                )}
+
+                <div className="border-t my-6" />
+
+                <div className="flex justify-between items-center my-2">
+                    <h2 className="text-2xl font-semibold">Review</h2>
+                    {user && (
+                        <div className="flex justify-end mb-3">
+                            <button
+                                onClick={() => {
+                                    setIsReviewModalOpen(true)
+                                    setModalReviewAction(
+                                        reviews.some((r) => r.user_id === user.id)
+                                            ? 'edit'
+                                            : 'create',
+                                    )
+                                    setSelectedReview({
+                                        protocol_id: Number(protocolId),
+                                        user_id: Number(user.id),
+                                        rating: 0,
+                                        feedback: '',
+                                    })
+                                    const existingReview = reviews.find(
+                                        (r) => r.user_id === user.id,
+                                    )
+
+                                    setIsReviewModalOpen(true)
+                                    setModalReviewAction(existingReview ? 'edit' : 'create')
+
+                                    setSelectedReview(
+                                        existingReview
+                                            ? {
+                                                  protocol_id: Number(existingReview.protocol_id),
+                                                  user_id: Number(existingReview.user_id),
+                                                  rating: Number(existingReview.rating),
+                                                  feedback: existingReview.feedback || '',
+                                              }
+                                            : {
+                                                  protocol_id: Number(protocolId),
+                                                  user_id: Number(user.id),
+                                                  rating: 0,
+                                                  feedback: '',
+                                              },
+                                    )
+                                }}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+                            >
+                                {reviews.some((r) => r.user_id === user.id)
+                                    ? 'Edit Review'
+                                    : 'Write Review'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                {reviews.length === 0 && <p>No reviews found.</p>}
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {reviews.map((review) => (
+                        <div key={review.id} className="border p-3 mb-2 rounded">
+                            <h3 className="font-semibold">{review.user.name}</h3>
+                            <p className="text-gray-600">{review.feedback}</p>
+                            <p className="text-sm text-gray-500">Rating: {review.rating}/5</p>
+                        </div>
+                    ))}
+                </div>
+
+                {reviewLastPage > 1 && (
+                    <Pagination
+                        currentPage={reviewCurrentPage}
+                        lastPage={reviewLastPage}
+                        loading={loading}
+                        setCurrentPage={setReviewCurrentPage}
+                    />
+                )}
             </div>
-
-            <Pagination
-                currentPage={threadCurrentPage}
-                lastPage={threadLastPage}
-                loading={loading}
-                setCurrentPage={setThreadCurrentPage}
-            />
-
-            <h2 className="text-2xl font-semibold mb-2">Reviews</h2>
-
-            {reviews.length === 0 && <p>No reviews found.</p>}
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {reviews.map((review) => (
-                    <div key={review.id} className="border p-3 mb-2 rounded">
-                        <h3 className="font-semibold">{review.user.name}</h3>
-                        <p className="text-gray-600">{review.comment}</p>
-                        <p className="text-sm text-gray-500">Rating: {review.rating}/5</p>
-                    </div>
-                ))}
-            </div>
-
-            <Pagination
-                currentPage={reviewCurrentPage}
-                lastPage={reviewLastPage}
-                loading={loading}
-                setCurrentPage={setReviewCurrentPage}
-            />
-        </div>
+        </>
     )
 }

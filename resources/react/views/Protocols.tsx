@@ -63,8 +63,6 @@ const Home = () => {
 
     return (
         <>
-            <Navbar />
-
             <ModalContainer isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <ProtocolModal
                     form={selectedProtocol}
@@ -95,7 +93,7 @@ const Home = () => {
                     </div>
                 )}
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {protocols.map((protocol: any) => (
                         <ProtocolCard
                             key={protocol.id}
@@ -107,12 +105,14 @@ const Home = () => {
                     ))}
                 </div>
 
-                <Pagination
-                    currentPage={currentPage}
-                    lastPage={lastPage}
-                    loading={loading}
-                    setCurrentPage={setCurrentPage}
-                />
+                {lastPage > 1 && (
+                    <Pagination
+                        currentPage={currentPage}
+                        lastPage={lastPage}
+                        loading={loading}
+                        setCurrentPage={setCurrentPage}
+                    />
+                )}
             </div>
         </>
     )

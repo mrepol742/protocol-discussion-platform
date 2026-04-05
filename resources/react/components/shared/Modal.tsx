@@ -5,12 +5,14 @@ export default function Modal({
     onClose,
     onConfirm,
     title,
+    isLoading,
     children,
 }: {
     isOpen: boolean
     onClose: () => void
     onConfirm: () => void
     title: string
+    isLoading: boolean
     children: React.ReactNode
 }) {
     useEffect(() => {
@@ -37,13 +39,24 @@ export default function Modal({
                 <div className="flex justify-end gap-2">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
+                        disabled={isLoading}
+                        className={`px-4 py-2 rounded transition ${
+                            isLoading
+                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
                     >
                         Close
                     </button>
+
                     <button
                         onClick={onConfirm}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                        disabled={isLoading}
+                        className={`px-4 py-2 rounded transition ${
+                            isLoading
+                                ? 'bg-blue-300 text-white cursor-not-allowed'
+                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                        }`}
                     >
                         Confirm
                     </button>

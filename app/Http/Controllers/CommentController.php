@@ -19,6 +19,7 @@ class CommentController extends Controller
     public function store(Request $request): Comment
     {
         $validator = Validator::make($request->all(), [
+            'thread_id' => ['required', 'exists:threads,id'],
             'body' => ['required', 'string', 'max:255', new NotBadWord()],
         ]);
 
@@ -35,7 +36,8 @@ class CommentController extends Controller
             'body' => $request->body,
             'thread_id' => $request->thread_id,
             'user_id' => auth()->id(),
-            'parent_id' => $request->parent_id,
+            // temp solution for parent_id, will be used for nested comments in the future
+            'parent_id' => $request->thread_id,
         ]);
     }
 

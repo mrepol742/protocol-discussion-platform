@@ -32,16 +32,25 @@ Route::apiResource('protocols', ProtocolController::class)
     ->only(['store', 'update', 'destroy'])
     ->middleware('auth:sanctum');
 
-Route::get('threads/search', [ProtocolController::class, 'search']);
+Route::get('threads/search', [ThreadController::class, 'search']);
 Route::get('threads/{id}/info', [ThreadController::class, 'getThreadInfo']);
 Route::get('threads/{id}', [ThreadController::class, 'show']);
-Route::apiResource('threads', ThreadController::class);
+Route::apiResource('threads', ThreadController::class)->only(['index']);
+Route::apiResource('threads', ThreadController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware('auth:sanctum');
 
 Route::get('comments/{id}', [CommentController::class, 'show']);
-Route::apiResource('comments', CommentController::class)->only(['store', 'update', 'destroy']);
+Route::apiResource('comments', CommentController::class)->only(['index']);
+Route::apiResource('comments', CommentController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware('auth:sanctum');
 
 Route::get('reviews/{id}', [ReviewController::class, 'show']);
-Route::apiResource('reviews', ReviewController::class)->only(['store', 'update', 'destroy']);
+Route::apiResource('reviews', ReviewController::class)->only(['index', 'show']);
+Route::apiResource('reviews', ReviewController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware('auth:sanctum');
 
 // Voting
 Route::post('/vote', [VoteController::class, 'vote']);

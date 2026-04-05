@@ -23,15 +23,15 @@ export function getReviews(protocolId: number, page: number = 1) {
 /**
  * Submit a new review for a specific protocol.
  *
- * @param protocolId - The ID of the protocol to which the review will be added.
+ * @param protocolId - The ID of the protocol to which the review will be added. * @param feedback - The feedback of the review comment.
+ * @param feedback - The content of the review comment.
  * @param rating - The rating value for the review (e.g., 1 to 5).
- * @param comment - The content of the review comment.
  * @returns A promise that resolves with the response containing the created review data or rejects with an error.
  */
-export function submitReview(protocolId: number, rating: number, comment: string) {
+export function submitReview(protocolId: number, feedback: string, rating: number) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .post(`/protocols/${protocolId}/reviews`, { rating, comment })
+            .post(`/reviews`, { protocol_id: protocolId, feedback, rating })
             .then((response) => {
                 resolve(response)
             })

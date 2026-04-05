@@ -79,9 +79,9 @@ class ProtocolController extends Controller
      *
      * @param Request $request
      * @param Protocol $protocol
-     * @return Protocol
+     * @return JsonResponse
      */
-    public function update(Request $request, Protocol $protocol): Protocol
+    public function update(Request $request, Protocol $protocol): JsonResponse
     {
         $validator = Validator::make($request->all(), [
             'title' => [
@@ -107,7 +107,7 @@ class ProtocolController extends Controller
 
         $protocol->update($request->only('title', 'content', 'tags'));
 
-        return $protocol;
+        return response()->json($protocol);
     }
 
     /**

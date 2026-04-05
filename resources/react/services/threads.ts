@@ -58,17 +58,17 @@ export function getThreadInfo(threadId: number) {
 }
 
 /**
- * Creates a new thread under a specific protocol with the given title and content
+ * Creates a new thread under a specific protocol with the given title and body
  *
  * @param protocolId - The ID of the protocol under which to create the thread
  * @param title - The title of the thread to create
- * @param content - The content of the thread to create
+ * @param body - The body of the thread to create
  * @returns A promise that resolves with the response containing the created thread or rejects with an error
  */
-export function createThread(protocolId: number, title: string, content: string) {
+export function createThread(protocolId: number, title: string, body: string) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .post(`/protocols/${protocolId}/threads`, { title, content })
+            .post(`/threads`, { protocol_id: protocolId, title, body })
             .then((response) => {
                 resolve(response)
             })

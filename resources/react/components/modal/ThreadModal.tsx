@@ -2,59 +2,47 @@ import { useEffect, useState } from 'react'
 import Modal from '../shared/Modal'
 import Input from '../shared/Input'
 import Textarea from '../shared/TextArea'
-import { createProtocol } from '../../services/protocols'
 import { toast } from 'react-toastify'
+import { createThread } from '../../services/threads'
 
-export default function ProtocolModal({
+export default function ThreadModal({
     form,
     modalAction,
     isOpen,
     setIsOpen,
-    fetchProtocols,
+    fetchThreads,
 }: {
     form: any
     modalAction: 'create' | 'edit'
     isOpen: boolean
     setIsOpen: (open: boolean) => void
-    fetchProtocols: () => void
+    fetchThreads: () => void
 }) {
     const [formData, setFormData] = useState(form)
-    const [tagsInput, setTagsInput] = useState(form?.tags?.join(', ') || '')
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         setFormData({
+            protocol_id: form?.protocol_id || -1,
             title: form?.title || '',
-            content: form?.content || '',
-            tags: form?.tags || [],
+            body: form?.body || '',
         })
     }, [form])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
 
-        if (name === 'tags') {
-            setTagsInput(value)
-            setFormData({
-                ...formData,
-                tags: value
-                    .split(',') // split by comma
-                    .map((tag) => tag.trim()) // remove spaces
-                    .filter((tag) => tag !== ''), // remove empty values
-            })
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value,
-            })
-        }
+        setFormData({
+            ...formData,
+            [name]: value,
+        })
     }
 
     const clearForm = () => {
         setFormData({
+            protocol_id: -1,
             title: '',
-            content: '',
-            tags: [],
+            body: '',
         })
         setIsOpen(false)
     }
@@ -70,11 +58,11 @@ export default function ProtocolModal({
         }
 
         setIsLoading(true)
-        const response = createProtocol(formData.title, formData.content, formData.tags)
+        const response = createThread(formData.protocol_id, formData.title, formData.body)
 
         toast.promise(response, {
-            pending: 'Creating protocol...',
-            success: 'Protocol created successfully',
+            pending: 'Creating thread...',
+            success: 'Thread created successfully',
             error: {
                 render({ data }) {
                     const error = data as Error
@@ -88,7 +76,7 @@ export default function ProtocolModal({
         response.then((response) => {
             clearForm()
             setIsLoading(false)
-            fetchProtocols()
+            fetchThreads()
         })
 
         response.catch(() => {
@@ -98,7 +86,7 @@ export default function ProtocolModal({
 
     return (
         <Modal
-            title={modalAction === 'create' ? 'Create Protocol' : 'Edit Protocol'}
+            title={modalAction === 'create' ? 'Create Thread' : 'Edit Thread'}
             isOpen={isOpen}
             onClose={onClose}
             onConfirm={onConfirm}
@@ -119,31 +107,16 @@ export default function ProtocolModal({
             </div>
 
             <div className="mb-4">
-                <label htmlFor="content" className="block text-gray-700 mb-2">
-                    Content
+                <label htmlFor="body" className="block text-gray-700 mb-2">
+                    Body
                 </label>
                 <Textarea
-                    name="content"
-                    value={formData.content}
+                    name="body"
+                    value={formData.body}
                     placeholder=""
                     handleChange={handleChange}
                     required
                 />
-            </div>
-
-            <div className="mb-4">
-                <label htmlFor="tags" className="block text-gray-700 mb-2">
-                    Tags
-                </label>
-                <Input
-                    name="tags"
-                    type="text"
-                    value={tagsInput}
-                    placeholder="e.g. api, backend, auth"
-                    handleChange={handleChange}
-                    required
-                />
-                <span className="text-xs text-gray-500">Separate tags with commas</span>
             </div>
         </Modal>
     )

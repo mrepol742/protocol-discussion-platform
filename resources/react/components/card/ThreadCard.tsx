@@ -1,39 +1,52 @@
+// components/ThreadCard.tsx
 import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
-import { useUser } from '../../context/UserContext'
 
-interface ProtocolCardProps {
-    protocol: any
-    onUpdate?: (protocol: any) => void
-    onDelete?: (protocol: any) => void
-    onClick?: () => void
-    onUpvote?: (protocol: any) => void
-    onDownvote?: (protocol: any) => void
+interface Comment {
+    id: string
+    user: { name: string }
+    body: string
 }
 
-const ProtocolCard: React.FC<ProtocolCardProps> = ({
-    protocol,
+interface Thread {
+    id: string
+    title: string
+    body: string
+    votes?: number
+    comments?: Comment[]
+}
+
+interface ThreadCardProps {
+    thread: Thread
+    onUpvote?: (thread: Thread) => void
+    onDownvote?: (thread: Thread) => void
+    onUpdate?: (thread: Thread) => void
+    onDelete?: (thread: Thread) => void
+    onClick?: () => void
+}
+
+const ThreadCard: React.FC<ThreadCardProps> = ({
+    thread,
+    onUpvote,
+    onDownvote,
     onUpdate,
     onDelete,
     onClick,
-    onUpvote,
-    onDownvote,
 }) => {
-    const [votes, setVotes] = useState(protocol.votes || 0)
+    const [votes, setVotes] = useState(thread.votes || 0)
     const [dropdownOpen, setDropdownOpen] = useState(false)
-    const { user } = useUser()
 
     const handleUpvote = (e: React.MouseEvent) => {
         e.stopPropagation()
         setVotes(votes + 1)
-        onUpvote?.(protocol)
+        onUpvote?.(thread)
     }
 
     const handleDownvote = (e: React.MouseEvent) => {
         e.stopPropagation()
         setVotes(votes - 1)
-        onDownvote?.(protocol)
+        onDownvote?.(thread)
     }
 
     const toggleDropdown = (e: React.MouseEvent) => {
@@ -46,12 +59,30 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
             className="border rounded-lg p-4 relative hover:shadow-lg transition-shadow cursor-pointer flex"
             onClick={onClick}
         >
+            {/* Votes */}
+            <div className="flex flex-col items-center mr-4 select-none">
+                <button
+                    onClick={handleUpvote}
+                    className="text-gray-400 hover:text-green-500 transition text-xl"
+                >
+                    ▲
+                </button>
+                <span className="font-semibold">{votes}</span>
+                <button
+                    onClick={handleDownvote}
+                    className="text-gray-400 hover:text-red-500 transition text-xl"
+                >
+                    ▼
+                </button>
+            </div>
+
+            {/* Thread content */}
             <div className="flex-1">
                 <div className="flex justify-between items-start">
-                    <h2 className="text-lg font-semibold text-gray-800 mb-2">{protocol.title}</h2>
+                    <h3 className="font-semibold text-gray-800 text-lg">{thread.title}</h3>
 
-                    {/* Actions Dropdown */}
-                    {protocol.author_id == user?.id && (onUpdate || onDelete) && (
+                    {/* Action dropdown */}
+                    {(onUpdate || onDelete) && (
                         <div className="relative">
                             <button
                                 onClick={toggleDropdown}
@@ -62,8 +93,8 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
 
                             <div
                                 className={`absolute right-0 mt-1 w-32 bg-white border rounded-md shadow-lg z-50
-                            ${dropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
-                       `}
+                  ${dropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+             `}
                             >
                                 {onUpdate && (
                                     <button
@@ -94,28 +125,21 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
                     )}
                 </div>
 
-                <p className="text-gray-600 mb-2">{protocol.content}</p>
+                <p className="text-gray-600 mt-1">{thread.body}</p>
 
-                <small className="text-gray-500">
-                    by {protocol.author.name} on{' '}
-                    {new Date(protocol.created_at).toLocaleDateString()}
-                </small>
-
-                {protocol.tags && protocol.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                        {protocol.tags.map((tag: string, idx: number) => (
-                            <span
-                                key={idx}
-                                className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full"
-                            >
-                                {tag}
-                            </span>
+                {/* Comments */}
+                {thread.comments && thread.comments.length > 0 && (
+                    <ul className="mt-3 border-l-2 border-gray-200 pl-3 space-y-1">
+                        {thread.comments.map((comment) => (
+                            <li key={comment.id}>
+                                <strong>{comment.user.name}:</strong> {comment.body}
+                            </li>
                         ))}
-                    </div>
+                    </ul>
                 )}
             </div>
         </div>
     )
 }
 
-export default ProtocolCard
+export default ThreadCard

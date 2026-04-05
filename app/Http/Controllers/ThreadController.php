@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Protocol;
 use App\Rules\NotBadWord;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\Thread;
 use Illuminate\Http\Response;
@@ -27,13 +27,13 @@ class ThreadController extends Controller
      * Store a newly created thread in storage.
      *
      * @param Request $request
-     * @return Thread
+     * @return JsonResponse
      */
-    public function store(Request $request): Thread
+    public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => ['required', 'string', 'max:255', new NotBadWord()],
-            'body' => ['required', 'string', new NotBadWord()],
+            'title' => ['required', 'string', 'max:255', 'unique:threads,title', new NotBadWord()],
+            'body' => ['required', 'string', 'unique:threads,body', new NotBadWord()],
             'protocol_id' => 'required|exists:protocols,id',
         ]);
 
@@ -53,7 +53,7 @@ class ThreadController extends Controller
             'user_id' => auth()->id(),
         ]);
 
-        return $thread;
+        return response()->json($thread, 201);
     }
 
     public function getThreadInfo($id): Thread
@@ -77,13 +77,13 @@ class ThreadController extends Controller
      *
      * @param Request $request
      * @param Thread $thread
-     * @return Thread
+     * @return JsonResponse
      */
-    public function update(Request $request, Thread $thread): Thread
+    public function update(Request $request, Thread $thread): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => ['required', 'string', 'max:255', new NotBadWord()],
-            'body' => ['required', 'string', new NotBadWord()],
+            'title' => ['required', 'string', 'max:255', 'unique:threads,title', new NotBadWord()],
+            'body' => ['required', 'string', 'unique:threads,body', new NotBadWord()],
         ]);
 
         if ($validator->fails()) {
@@ -97,7 +97,7 @@ class ThreadController extends Controller
 
         $thread->update($request->only('title', 'body'));
 
-        return $thread;
+        return response()->json($thread);
     }
 
     /**

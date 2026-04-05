@@ -28,10 +28,10 @@ export function getComments(threadId: number, page: number) {
  * @param content - The content of the comment to be created.
  * @returns A promise that resolves with the response containing the created comment data or rejects with an error.
  */
-export function createComment(protocolId: string, threadId: string, content: string) {
+export function createComment(threadId: string, body: string) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .post(`/protocols/${protocolId}/threads/${threadId}/comments`, { content })
+            .post(`comments`, { thread_id: threadId, body })
             .then((response) => {
                 resolve(response)
             })
