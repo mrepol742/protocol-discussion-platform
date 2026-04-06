@@ -6,7 +6,14 @@ import Pagination from '../components/shared/Pagination'
 import { getReviews } from '../services/reviews'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faChevronLeft, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import {
+    faChevronLeft,
+    faExclamationTriangle,
+    faGripVertical,
+    faList,
+    faPencil,
+    faPlus,
+} from '@fortawesome/free-solid-svg-icons'
 import ModalContainer from '../components/shared/ModalContainer'
 import ThreadModal from '../components/modal/ThreadModal'
 import { useUser } from '../context/UserContext'
@@ -18,6 +25,7 @@ import type { SearchThread } from '../types/search'
 import { Rating } from 'react-simple-star-rating'
 
 export default function Threads() {
+    const [mode, setMode] = useState('list')
     const { protocolId } = useParams<{ protocolId: string }>()
     const [protocol, setProtocol] = useState<any>(null)
     const [threads, setThreads] = useState<any[]>([])
@@ -45,6 +53,10 @@ export default function Threads() {
     const { user } = useUser()
     const navigate = useNavigate()
     const location = useLocation()
+
+    const toggleMode = () => {
+        setMode((prev) => (prev === 'list' ? 'grid' : 'list'))
+    }
 
     const fetchThreads = async (searchParams: SearchThread) => {
         setLoading(true)
@@ -148,32 +160,28 @@ export default function Threads() {
             </ModalContainer>
 
             <div className="container mx-auto px-4 py-8">
-                <div className="flex items-center gap-4 mb-2">
-                    <button
-                        onClick={() => navigate('/')}
-                        className="p-2 rounded-full hover:bg-gray-200 transition"
-                    >
-                        <FontAwesomeIcon
-                            icon={faChevronLeft}
-                            className="text-gray-600 hover:text-gray-800 transition"
-                        />
-                    </button>
-                    <h1 className="text-4xl font-bold">{protocol.title}</h1>
-                </div>
+                <button
+                    onClick={() => navigate('/')}
+                    className="p-2 rounded-full hover:bg-gray-200 transition"
+                >
+                    <FontAwesomeIcon
+                        icon={faChevronLeft}
+                        className="text-gray-600 hover:text-gray-800 transition"
+                    />
+                    <span className="ms-2 ">Back</span>
+                </button>
+                <h1 className="text-4xl font-bold">{protocol.title}</h1>
 
-                <p className="text-lg text-gray-600 mb-2">{protocol.content}</p>
-                <small className="text-sm text-gray-500 block mb-1">
-                    By: {protocol.author.name}
-                </small>
-                <small className="text-sm text-gray-500 block mb-4">
-                    Created on: {new Date(protocol.created_at).toLocaleDateString()}
-                </small>
+                <p className="text-lg text-gray-600">{protocol.content}</p>
+                <div className="text-sm text-gray-500 block mb-2">
+                    {protocol.author.name} — {new Date(protocol.created_at).toLocaleDateString()}
+                </div>
 
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                     <Search type="threads" />
 
-                    {user && (
-                        <div className="flex justify-end mb-3">
+                    <div className="flex justify-end">
+                        {user && (
                             <button
                                 onClick={() => {
                                     setIsThreadModalOpen(true)
@@ -184,12 +192,22 @@ export default function Threads() {
                                         body: '',
                                     })
                                 }}
-                                className="px-4 py-2 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-700 transition"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-md shadow hover:bg-gray-700 transition"
                             >
-                                Create Thread
+                                <FontAwesomeIcon icon={faPlus} className="mr-1" /> Thread
                             </button>
-                        </div>
-                    )}
+                        )}
+                        <button
+                            onClick={toggleMode}
+                            className="px-4 py-2 ml-2 bg-gray-200 text-gray-700 rounded-md shadow hover:bg-gray-300 transition"
+                        >
+                            {mode === 'list' ? (
+                                <FontAwesomeIcon icon={faGripVertical} />
+                            ) : (
+                                <FontAwesomeIcon icon={faList} />
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {loading && <Loading noMaxHeight />}
@@ -209,7 +227,11 @@ export default function Threads() {
                     </div>
                 )}
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                    className={`grid gap-6 ${
+                        mode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+                    }`}
+                >
                     {!loading &&
                         threads.map((thread) => (
                             <ThreadCard
@@ -240,7 +262,7 @@ export default function Threads() {
                 <div className="flex justify-between items-center my-2">
                     <h2 className="text-2xl font-semibold">Review</h2>
                     {user && (
-                        <div className="flex justify-end mb-3">
+                        <div className="flex justify-end">
                             <button
                                 onClick={() => {
                                     setIsReviewModalOpen(true)
@@ -278,11 +300,10 @@ export default function Threads() {
                                               },
                                     )
                                 }}
-                                className="px-4 py-2 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-700 transition"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-md shadow hover:bg-gray-700 transition"
                             >
-                                {reviews.some((r) => r.user_id === user.id)
-                                    ? 'Edit Review'
-                                    : 'Write Review'}
+                                <FontAwesomeIcon icon={faPencil} className="mr-1" />
+                                Review
                             </button>
                         </div>
                     )}
@@ -303,15 +324,20 @@ export default function Threads() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
                     {reviews.map((review) => (
-                        <div key={review.id} className="border p-3 mb-2 rounded">
+                        <div
+                            key={review.id}
+                            className="hover:border-l-yellow-500 border-l-3 border-gray-500 rounded ps-2 transition"
+                        >
                             {review.user_id === user?.id && (
-                                <div className="mb-1 bg-gray-600 w-min whitespace-nowrap text-white rounded text-sm px-2">
+                                <div className="mb-1 bg-gray-600 w-min whitespace-nowrap text-white rounded text-xs px-2">
                                     Your review
                                 </div>
                             )}
-                            <h3 className="font-semibold">{review.user.name}</h3>
+                            <h3 className="font-semibold">
+                                {review.user.name}
+                            </h3>
                             <p className="text-gray-600">{review.feedback}</p>
 
                             <div className="mt-1">

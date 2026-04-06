@@ -8,46 +8,49 @@ import ErrorBoundary from './errors/ErrorBoundary'
 import ScrollToTop from './components/ui/ScrollToTop'
 import ScrollTop from './components/ui/ScrollTop'
 import TopLoader from './components/ui/TopLoader'
+import { ViewPreference } from './context/ViewPreference'
 
 const App: React.FC = () => {
     return (
         <BrowserRouter>
             <Suspense fallback={<Loading />}>
-                <ErrorBoundary>
-                    <TopLoader />
-                    <ScrollToTop />
-                    <ScrollTop />
+                <ViewPreference>
+                    <ErrorBoundary>
+                        <TopLoader />
+                        <ScrollToTop />
+                        <ScrollTop />
 
-                    <Routes>
-                        <Route path="/auth" element={<AuthLayout />}>
-                            {routes.map((route, index) => (
-                                <>
-                                    {route.isAuth && (
-                                        <Route
-                                            key={index}
-                                            path={route.path}
-                                            element={<route.element />}
-                                        />
-                                    )}
-                                </>
-                            ))}
-                        </Route>
+                        <Routes>
+                            <Route path="/auth" element={<AuthLayout />}>
+                                {routes.map((route, index) => (
+                                    <>
+                                        {route.isAuth && (
+                                            <Route
+                                                key={index}
+                                                path={route.path}
+                                                element={<route.element />}
+                                            />
+                                        )}
+                                    </>
+                                ))}
+                            </Route>
 
-                        <Route path="/" element={<DefaultLayout />}>
-                            {routes.map((route, index) => (
-                                <>
-                                    {!route.isAuth && (
-                                        <Route
-                                            key={index}
-                                            path={route.path}
-                                            element={<route.element />}
-                                        />
-                                    )}
-                                </>
-                            ))}
-                        </Route>
-                    </Routes>
-                </ErrorBoundary>
+                            <Route path="/" element={<DefaultLayout />}>
+                                {routes.map((route, index) => (
+                                    <>
+                                        {!route.isAuth && (
+                                            <Route
+                                                key={index}
+                                                path={route.path}
+                                                element={<route.element />}
+                                            />
+                                        )}
+                                    </>
+                                ))}
+                            </Route>
+                        </Routes>
+                    </ErrorBoundary>
+                </ViewPreference>
             </Suspense>
         </BrowserRouter>
     )

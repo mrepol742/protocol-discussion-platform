@@ -86,23 +86,18 @@ export default function Comments() {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center gap-4 mb-2">
-                <button
-                    onClick={() => navigate('/')}
-                    className="p-2 rounded-full hover:bg-gray-200 transition"
-                >
-                    <FontAwesomeIcon
-                        icon={faChevronLeft}
-                        className="text-gray-600 hover:text-gray-800 transition"
-                    />
-                </button>
-                <h1 className="text-4xl font-bold">{thread.title}</h1>
-            </div>
-
+            <button
+                onClick={() => navigate(`/protocols/${thread.protocol_id}`)}
+                className="p-2 rounded-full hover:bg-gray-200 transition"
+            >
+                <FontAwesomeIcon
+                    icon={faChevronLeft}
+                    className="text-gray-600 hover:text-gray-800 transition"
+                />
+                <span className="ms-2 ">Back</span>
+            </button>
+            <h1 className="text-4xl font-bold">{thread.title}</h1>
             <p className="text-lg text-gray-600 mb-2">{thread.body}</p>
-            <small className="text-sm text-gray-500 block mb-2">
-                Created on: {new Date(thread.created_at).toLocaleDateString()}
-            </small>
 
             <div className="flex flex-col flex-1 min-h-0 border rounded-lg shadow-sm bg-white">
                 <h2 className="text-xl font-semibold p-4 border-b">
@@ -132,16 +127,16 @@ export default function Comments() {
                     <div ref={commentsEndRef} />
                 </div>
 
-                <div className="flex flex-row items-end gap-2 p-4 border-t bg-white">
+                <div className="rounded-xl flex flex-row items-end gap-2 p-2 border-t bg-white">
                     <textarea
-                        className="flex-1 border rounded p-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        className="flex-1 border rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
                         rows={3}
                         placeholder="Write a comment..."
                         value={newComment}
                         onChange={handleCommentChange}
                     />
                     <button
-                        className="flex-shrink-0 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+                        className="flex-shrink-0 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
                         onClick={handleCommentSubmit}
                     >
                         <FontAwesomeIcon icon={faPaperPlane} className="mr-1" />

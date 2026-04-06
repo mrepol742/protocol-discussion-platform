@@ -29,7 +29,7 @@ export default function Modal({
         <div className="fixed inset-0 z-50 flex items-center justify-center transform transition-all duration-300 opacity-100">
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 z-10">
+            <div className="relative bg-gray-100 rounded shadow-xl w-full max-w-lg p-6 z-10">
                 <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold">{title}</h2>
                 </div>
@@ -54,8 +54,8 @@ export default function Modal({
                         disabled={isLoading}
                         className={`px-4 py-2 rounded transition ${
                             isLoading
-                                ? 'bg-blue-300 text-white cursor-not-allowed'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                ? 'bg-gray-300 text-white cursor-not-allowed'
+                                : 'bg-gray-600 text-white hover:bg-gray-700'
                         }`}
                     >
                         Confirm

@@ -47,8 +47,15 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
             onClick={onClick}
         >
             <div className="flex-1">
-                <div className="flex justify-between items-start">
-                    <h2 className="text-lg font-semibold text-gray-800 mb-2">{protocol.title}</h2>
+                <div className="flex justify-between items-start border p-2 rounded-lg mb-3">
+                    <div>
+                        <h2 className="text-lg font-semibold text-gray-800">{protocol.title}</h2>
+                        {/* the *1000 is to convert unix timestamp strtotime($this->created_at) to readable date */}
+                        <div className="text-gray-500 text-xs">
+                            {protocol?.author?.name || protocol.author_name} —{' '}
+                            {new Date(protocol.created_at * 1000).toLocaleDateString()}
+                        </div>
+                    </div>
 
                     {/* Actions Dropdown */}
                     {user && protocol.author_id == user?.id && (onUpdate || onDelete) && (
@@ -95,12 +102,6 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
                 </div>
 
                 <p className="text-gray-600 mb-2">{protocol.content}</p>
-
-                {/* the *1000 is to convert unix timestamp strtotime($this->created_at) to readable date */}
-                <small className="text-gray-500">
-                    by {protocol?.author?.name || protocol.author_name} on{' '}
-                    {new Date(protocol.created_at * 1000).toLocaleDateString()}
-                </small>
 
                 {protocol.tags && protocol.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">

@@ -4,7 +4,12 @@ import Pagination from '../components/shared/Pagination'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import {
+    faExclamationTriangle,
+    faGripVertical,
+    faList,
+    faPlus,
+} from '@fortawesome/free-solid-svg-icons'
 import ProtocolModal from '../components/modal/ProtocolModal'
 import ModalContainer from '../components/shared/ModalContainer'
 import { useUser } from '../context/UserContext'
@@ -12,6 +17,7 @@ import ProtocolCard from '../components/card/ProtocolCard'
 import Search from '../components/shared/Search'
 import type { SearchProtocol } from '../types/search'
 import type { Response } from '../types/response'
+import { useViewPreference } from '../context/ViewPreference'
 
 const Home = () => {
     const [protocols, setProtocols] = useState([])
@@ -25,6 +31,7 @@ const Home = () => {
         content: '',
         tags: [],
     })
+    const { mode, toggleMode } = useViewPreference();
     const { user } = useUser()
     const navigate = useNavigate()
     const location = useLocation()
@@ -83,8 +90,8 @@ const Home = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                     <Search type="protocols" />
 
-                    {user && (
-                        <div className="flex justify-end mb-3">
+                    <div className="flex justify-end">
+                        {user && (
                             <button
                                 onClick={() => {
                                     setIsModalOpen(true)
@@ -95,12 +102,23 @@ const Home = () => {
                                         tags: [],
                                     })
                                 }}
-                                className="px-4 py-2 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-700 transition"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-md shadow hover:bg-gray-700 transition"
                             >
-                                Create Protocol
+                                <FontAwesomeIcon icon={faPlus} className="mr-1" /> Protocol
                             </button>
-                        </div>
-                    )}
+                        )}
+
+                        <button
+                            onClick={toggleMode}
+                            className="px-4 py-2 ml-2 bg-gray-200 text-gray-700 rounded-md shadow hover:bg-gray-300 transition"
+                        >
+                            {mode === 'list' ? (
+                                <FontAwesomeIcon icon={faGripVertical} />
+                            ) : (
+                                <FontAwesomeIcon icon={faList} />
+                            )}
+                        </button>
+                    </div>
                 </div>
 
                 {loading && <Loading />}
@@ -120,7 +138,11 @@ const Home = () => {
                     </div>
                 )}
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                    className={`grid gap-6 ${
+                        mode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+                    }`}
+                >
                     {!loading &&
                         protocols.map((protocol: any) => (
                             <ProtocolCard
