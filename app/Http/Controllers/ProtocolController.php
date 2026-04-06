@@ -170,6 +170,15 @@ class ProtocolController extends Controller
      */
     public function update(Request $request, Protocol $protocol): JsonResponse
     {
+        if (!$this->checkOwnership($protocol)) {
+            return response()->json(
+                [
+                    'error' => 'Deletion denied. You are not the owner of this protocol.',
+                ],
+                422,
+            );
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => [
                 'required',
@@ -210,7 +219,27 @@ class ProtocolController extends Controller
      */
     public function destroy(Protocol $protocol): Response
     {
+        if (!$this->checkOwnership($protocol)) {
+            return response()->json(
+                [
+                    'error' => 'Deletion denied. You are not the owner of this protocol.',
+                ],
+                422,
+            );
+        }
+
         $protocol->delete();
         return response()->noContent();
+    }
+
+    /**
+     * Check if the authenticated user is the owner of the protocol.
+     *
+     * @param Protocol $protocol
+     * @return bool
+     */
+    private function checkOwnership(Protocol $protocol): bool
+    {
+        return auth()->id() === $protocol->author_id;
     }
 }

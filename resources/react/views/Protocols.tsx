@@ -35,6 +35,8 @@ const Home = () => {
         tags: [],
     })
     const { mode, toggleMode } = useViewPreference()
+    const [searchTerm, setSearchTerm] = useState('')
+    const [isMarkedEveryone, setIsMarkedEveryone] = useState(false)
     const { user } = useUser()
     const navigate = useNavigate()
     const location = useLocation()
@@ -69,6 +71,8 @@ const Home = () => {
         const everyone = params.get('everyone') === 'true'
         const sort = params.get('sort') as 'topRated' | 'mostUpvotes' | null
 
+        setSearchTerm(q)
+        setIsMarkedEveryone(everyone)
         fetchProtocols({
             search: q,
             mostRecent,
@@ -77,6 +81,19 @@ const Home = () => {
             sort: sort || 'topRated',
         })
     }, [location.search, currentPage])
+
+    const getReason = () => {
+        if (searchTerm.length > 0)
+            return 'Try adjusting your search criteria or clearing the search term.'
+
+        if (user && isMarkedEveryone)
+            return 'There are no protocols available from everyone. Try changing the filter to show only your protocols or check back later.'
+
+        if (user && !isMarkedEveryone)
+            return 'Add some protocols to your account or change the filter to show protocols from everyone.'
+
+        return 'There are no protocols available at the moment. Please check back later.'
+    }
 
     return (
         <>
@@ -144,16 +161,16 @@ const Home = () => {
                                 className="text-4xl text-yellow-500 mb-4"
                             />
                             <p className="text-gray-500">No protocols found.</p>
-                            <small className="text-gray-400 block mt-2">
-                                There are currently no protocols available. Please check back later.
-                            </small>
+                            <small className="text-gray-400 block mt-2">{getReason()}</small>
                         </div>
                     </div>
                 )}
 
                 <div
                     className={`grid gap-6 ${
-                        mode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 md:grid-cols-1'
+                        mode === 'grid'
+                            ? 'md:grid-cols-2 lg:grid-cols-3'
+                            : 'grid-cols-2 md:grid-cols-1'
                     }`}
                 >
                     {!loading &&

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Protocol;
 use App\Rules\NotBadWord;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -88,9 +89,20 @@ class ThreadController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validator = Validator::make($request->all(), [
+            'protocol_id' => [
+                'required',
+                'numeric',
+                'max:255',
+                'exists:protocols,id',
+                function ($attribute, $value, $fail) {
+                    $protocol = Protocol::find($value);
+                    if ($protocol && $protocol->author_id !== auth()->id()) {
+                        $fail('Creation denied. You are not the owner of this protocol.');
+                    }
+                },
+            ],
             'title' => ['required', 'string', 'max:255', 'unique:threads,title', new NotBadWord()],
             'body' => ['required', 'string', 'unique:threads,body', new NotBadWord()],
-            'protocol_id' => 'required|exists:protocols,id',
         ]);
 
         if ($validator->fails()) {
@@ -143,6 +155,15 @@ class ThreadController extends Controller
      */
     public function update(Request $request, Thread $thread): JsonResponse
     {
+        if (!$this->checkOwnership($thread)) {
+            return response()->json(
+                [
+                    'error' => 'Deletion denied. You are not the owner of this protocol.',
+                ],
+                422,
+            );
+        }
+
         $validator = Validator::make($request->all(), [
             'title' => [
                 'required',
@@ -181,7 +202,28 @@ class ThreadController extends Controller
      */
     public function destroy(Thread $thread): Response
     {
+        if (!$this->checkOwnership($thread)) {
+            return response()->json(
+                [
+                    'error' => 'Deletion denied. You are not the owner of this protocol.',
+                ],
+                422,
+            );
+        }
+
         $thread->delete();
         return response()->noContent();
+    }
+
+    /**
+     * Check if the authenticated user is the owner of the thread's protocol.
+     *
+     * @param Thread $thread
+     * @return bool
+     */
+    private function checkOwnership(Thread $thread): bool
+    {
+        $protocol = $thread->protocol;
+        return $protocol && $protocol->author_id === auth()->id();
     }
 }

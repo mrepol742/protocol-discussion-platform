@@ -17,6 +17,7 @@ interface Thread {
 }
 
 interface ThreadCardProps {
+    isOwner: boolean
     thread: Thread
     onUpvote?: (thread: Thread) => void
     onDownvote?: (thread: Thread) => void
@@ -26,6 +27,7 @@ interface ThreadCardProps {
 }
 
 const ThreadCard: React.FC<ThreadCardProps> = ({
+    isOwner,
     thread,
     onUpvote,
     onDownvote,
@@ -81,7 +83,7 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                     <h3 className="font-semibold text-gray-800 text-lg">{thread.title}</h3>
 
                     {/* Action dropdown */}
-                    {(onUpdate || onDelete) && (
+                    {isOwner && (onUpdate || onDelete) && (
                         <div className="relative">
                             <button
                                 onClick={toggleDropdown}

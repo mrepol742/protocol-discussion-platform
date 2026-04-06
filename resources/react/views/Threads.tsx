@@ -45,6 +45,7 @@ export default function Threads() {
         title: '',
         body: '',
     })
+    const [searchTerm, setSearchTerm] = useState('')
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false)
     const [modalReviewAction, setModalReviewAction] = useState<'create' | 'edit'>('create')
     const [selectedReview, setSelectedReview] = useState({
@@ -119,6 +120,7 @@ export default function Threads() {
         const mostRecent = params.get('recent') === 'true'
         const topRated = params.get('topRated') === 'true'
 
+        setSearchTerm(q)
         fetchThreads({
             search: q,
             mostRecent,
@@ -194,7 +196,7 @@ export default function Threads() {
                     <Search type="threads" />
 
                     <div className="flex justify-end">
-                        {user && (
+                        {user && user.id === protocol.author_id && (
                             <button
                                 onClick={() => {
                                     setIsThreadModalOpen(true)
@@ -235,7 +237,9 @@ export default function Threads() {
                             />
                             <p className="text-gray-500">No threads found.</p>
                             <small className="text-gray-400 block mt-2">
-                                There are currently no threads for this protocol.
+                                {searchTerm.length > 0
+                                    ? 'No threads match your search criteria.'
+                                    : 'There are currently no threads for this protocol.'}
                             </small>
                         </div>
                     </div>
@@ -252,6 +256,7 @@ export default function Threads() {
                         threads.map((thread) => (
                             <ThreadCard
                                 key={thread.id}
+                                isOwner={user?.id === protocol.author_id}
                                 thread={thread}
                                 onClick={() =>
                                     navigate(`/protocols/${protocol.id}/threads/${thread.id}`)
