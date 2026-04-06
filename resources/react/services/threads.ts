@@ -6,10 +6,16 @@ import axiosInstance from '../lib/axios'
  * @param protocolId - The ID of the protocol for which to fetch threads
  * @returns A promise that resolves with the response containing the list of threads or rejects with an error
  */
-export function getThreads(protocolId: number, page: number = 1) {
+export function getThreads(
+    protocolId: number,
+    query: string = '',
+    isMostRecent: boolean,
+    topRated: boolean,
+    page: number = 1,
+) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .get(`/threads/${protocolId}`, { params: { page } })
+            .get(`/threads/${protocolId}`, { params: { q: query, isMostRecent, topRated, page } })
             .then((response) => {
                 resolve(response)
             })

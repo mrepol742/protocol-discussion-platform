@@ -16,11 +16,67 @@ class ThreadController extends Controller
     /**
      * Display a listing of the threads, optionally filtered by protocol.
      *
+     * @param Request $request
      * @return LengthAwarePaginator
      */
-    public function index(): LengthAwarePaginator
+    public function index($id, Request $request): LengthAwarePaginator
     {
-        return Thread::with('protocol')->latest()->paginate(10);
+        $request->merge([
+            'isMostRecent' => filter_var(
+                $request->query('isMostRecent'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ),
+            'topRated' => filter_var(
+                $request->query('topRated'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ),
+        ]);
+
+        $request->validate([
+            'q' => 'nullable|string',
+            'isMostRecent' => 'nullable|boolean',
+            'topRated' => 'nullable|boolean',
+        ]);
+
+        $query = $request->q;
+        $perPage = 10;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+
+        $sortFields = [];
+
+        // Add fields based on request flags
+        if ($request->isMostRecent) {
+            $sortFields[] = 'created_at:desc';
+        }
+
+        if ($request->topRated) {
+            $sortFields[] = 'votes_count:desc';
+        }
+
+        // Join into a comma-separated string for sort_by
+        $sort = implode(',', $sortFields);
+
+        $results = Thread::search($query)
+            ->options([
+                'query_by' => 'title, body, tags',
+                'sort_by' => $sort ?: null,
+                'filter_by' => 'protocol_id:=' .$id,
+            ])
+            ->raw();
+
+        $documents = collect($results['hits'])->map(fn($hit) => $hit['document']);
+
+        $paginated = new LengthAwarePaginator(
+            $documents->forPage($page, $perPage),
+            count($documents),
+            $perPage,
+            $page,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()],
+        );
+
+        return $paginated;
     }
 
     /**
@@ -56,6 +112,12 @@ class ThreadController extends Controller
         return response()->json($thread, 201);
     }
 
+    /**
+     * Display the specified thread along with its protocol information.
+     *
+     * @param int $id
+     * @return Thread
+     */
     public function getThreadInfo($id): Thread
     {
         return Thread::with('protocol')->findOrFail($id);
@@ -110,21 +172,5 @@ class ThreadController extends Controller
     {
         $thread->delete();
         return response()->noContent();
-    }
-
-    /**
-     * Search threads by title or body.
-     *
-     * @param Request $request
-     * @return Collection
-     */
-    public function search(Request $request): Collection
-    {
-        $request->validate(['q' => 'required|string']);
-        return Thread::search($request->q)
-            ->options([
-                'query_by' => 'title, body, tags',
-            ])
-            ->paginate(10);
     }
 }

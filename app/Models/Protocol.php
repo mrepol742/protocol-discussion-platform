@@ -23,13 +23,20 @@ class Protocol extends Model
      */
     public function toSearchableArray(): array
     {
-        return array_merge($this->toArray(), [
+        $this->loadMissing(['author', 'threads', 'reviews']);
+
+        return [
             'id' => (string) $this->id,
             'title' => $this->title,
             'content' => $this->content,
             'tags' => $this->tags ?? [],
-            'votes' => $this->votes ?? 0,
-        ]);
+            'reviews_count' => $this->reviews()->count(),
+            'average_rating' => (float) $this->reviews()->avg('rating'),
+            'votes_count' => $this->threads()->sum('votes_count'),
+            'author_name' => $this->author?->name,
+            'created_at' => strtotime($this->created_at),
+            'updated_at' => strtotime($this->updated_at),
+        ];
     }
 
     /**

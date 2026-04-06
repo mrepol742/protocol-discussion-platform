@@ -4,23 +4,23 @@ import Input from '../shared/Input'
 import Textarea from '../shared/TextArea'
 import { createProtocol } from '../../services/protocols'
 import { toast } from 'react-toastify'
+import { useNavigate } from 'react-router-dom'
 
 export default function ProtocolModal({
     form,
     modalAction,
     isOpen,
     setIsOpen,
-    fetchProtocols,
 }: {
     form: any
     modalAction: 'create' | 'edit'
     isOpen: boolean
     setIsOpen: (open: boolean) => void
-    fetchProtocols: () => void
 }) {
     const [formData, setFormData] = useState(form)
     const [tagsInput, setTagsInput] = useState(form?.tags?.join(', ') || '')
     const [isLoading, setIsLoading] = useState(false)
+    const navigate = useNavigate()
 
     useEffect(() => {
         setFormData({
@@ -88,7 +88,7 @@ export default function ProtocolModal({
         response.then((response) => {
             clearForm()
             setIsLoading(false)
-            fetchProtocols()
+            navigate(0) // Refresh the page to show the new protocol
         })
 
         response.catch(() => {

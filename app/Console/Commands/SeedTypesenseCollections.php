@@ -47,9 +47,13 @@ class SeedTypesenseCollections extends Command
                         ['name' => 'title', 'type' => 'string'],
                         ['name' => 'content', 'type' => 'string'],
                         ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
-                        ['name' => 'votes', 'type' => 'int32'],
+                        ['name' => 'reviews_count', 'type' => 'int32'],
+                        ['name' => 'average_rating', 'type' => 'float'],
+                        ['name' => 'votes_count', 'type' => 'int32'],
+                        ['name' => 'author_name', 'type' => 'string'],
+                        ['name' => 'created_at', 'type' => 'int64'],
+                        ['name' => 'updated_at', 'type' => 'int64'],
                     ],
-                    'default_sorting_field' => 'votes',
                 ]);
                 $this->info('Collection "protocols" created.');
             } catch (ObjectAlreadyExists $e) {
@@ -65,6 +69,10 @@ class SeedTypesenseCollections extends Command
                         ['name' => 'title', 'type' => 'string'],
                         ['name' => 'body', 'type' => 'string'],
                         ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
+                        ['name' => 'votes_count', 'type' => 'int32'],
+                        ['name' => 'protocol_id', 'type' => 'string'],
+                        ['name' => 'created_at', 'type' => 'int64'],
+                        ['name' => 'updated_at', 'type' => 'int64'],
                     ],
                 ]);
                 $this->info('Collection "threads" created.');
@@ -72,6 +80,6 @@ class SeedTypesenseCollections extends Command
                 $this->info('Collection "threads" already exists.');
             }
 
-            $this->info('Typesense seeding completed successfully.');
+            $this->info('Typesense collections seeding completed.');
         }
 }

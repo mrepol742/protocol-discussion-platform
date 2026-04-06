@@ -1,15 +1,27 @@
 import axiosInstance from '../lib/axios'
 
 /**
- * Fetches a list of protocols
+ * Fetches a list of protocols based on the provided query and sorting options
  *
- * @param page - The page number to fetch (default is 1)
+ * @param query - The search query to filter protocols (default: '')
+ * @param isMostRecent - Whether to sort by most recent protocols
+ * @param isMostReviews - Whether to sort by most reviewed protocols
+ * @param isHighestRated - Whether to sort by highest rated or most sum upvotes protocols
+ * @param page - The page number for pagination (default: 1)
  * @returns A promise that resolves with the response containing the list of protocols or rejects with an error
  */
-export function getProtocols(page: number = 1) {
+export function getProtocols(
+    query: string = '',
+    isMostRecent: boolean,
+    isMostReviews: boolean,
+    isHighestRated: boolean,
+    page: number = 1,
+) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .get('/protocols?page=' + page)
+            .get('/protocols', {
+                params: { q: query, isMostRecent, isMostReviews, isHighestRated, page },
+            })
             .then((response) => {
                 resolve(response)
             })
@@ -68,7 +80,12 @@ export function createProtocol(title: string, content: string, tags: string[] = 
  * @param tags - An optional array of new tags to associate with the protocol
  * @returns A promise that resolves with the response containing the updated protocol or rejects with an error
  */
-export function updateProtocol(protocolId: number, title: string, content: string, tags: string[] = []) {
+export function updateProtocol(
+    protocolId: number,
+    title: string,
+    content: string,
+    tags: string[] = [],
+) {
     return new Promise((resolve, reject) => {
         axiosInstance
             .put(`/protocols/${protocolId}`, { title, content, tags })

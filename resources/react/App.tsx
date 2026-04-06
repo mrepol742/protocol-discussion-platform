@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import DefaultLayout from './layouts/DefaultLayout'
 import AuthLayout from './layouts/AuthLayout'
 import routes from './routes'
@@ -10,7 +10,7 @@ import ScrollTop from './components/ui/ScrollTop'
 
 const App: React.FC = () => {
     return (
-        <Router>
+        <BrowserRouter>
             <Suspense fallback={<Loading />}>
                 <ErrorBoundary>
                     <ScrollToTop />
@@ -47,7 +47,7 @@ const App: React.FC = () => {
                     </Routes>
                 </ErrorBoundary>
             </Suspense>
-        </Router>
+        </BrowserRouter>
     )
 }
 export default App

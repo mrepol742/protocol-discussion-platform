@@ -17,12 +17,16 @@ class Thread extends Model
      */
     public function toSearchableArray(): array
     {
-        return array_merge($this->toArray(), [
+        return [
             'id' => (string) $this->id,
             'title' => $this->title,
             'body' => $this->body,
             'tags' => $this->protocol?->tags ?? [],
-        ]);
+            'votes_count' => (int) $this->votes_count,
+            'protocol_id' => (string) $this->protocol_id,
+            'created_at' => strtotime($this->created_at),
+            'updated_at' => strtotime($this->updated_at),
+        ];
     }
 
     /**

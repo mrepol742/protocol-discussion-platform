@@ -8,19 +8,84 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 
 class ProtocolController extends Controller
 {
     /**
-     * Display a listing of the protocols.
+     * Display and search a listing of the protocols.
      *
+     * @param Request $request
      * @return LengthAwarePaginator
      */
-    public function index(): LengthAwarePaginator
+    public function index(Request $request): LengthAwarePaginator
     {
-        return Protocol::with('author')->latest()->paginate(10);
+        $request->merge([
+            'isMostRecent' => filter_var(
+                $request->query('isMostRecent'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ),
+            'isMostReviews' => filter_var(
+                $request->query('isMostReviews'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ),
+            'isHighestRated' => filter_var(
+                $request->query('isHighestRated'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ),
+        ]);
+
+        $request->validate([
+            'q' => 'nullable|string',
+            'isMostRecent' => 'nullable|boolean',
+            'isMostReviews' => 'nullable|boolean',
+            'isHighestRated' => 'nullable|boolean', // true = rate, false = upvotes
+        ]);
+
+        $query = $request->q;
+        $perPage = 10;
+        $page = LengthAwarePaginator::resolveCurrentPage();
+
+        $sortFields = [];
+
+        // Add fields based on request flags
+        if ($request->isMostRecent) {
+            $sortFields[] = 'created_at:desc';
+        }
+
+        if ($request->isMostReviews) {
+            $sortFields[] = 'reviews_count:desc';
+        }
+
+        if (!is_null($request->isHighestRated)) {
+            $sortField = $request->isHighestRated ? 'average_rating' : 'votes_count';
+            $sortFields[] = $sortField . ':desc';
+        }
+
+        // Join into a comma-separated string for sort_by
+        $sort = implode(',', $sortFields);
+
+        $results = Protocol::search($query)
+            ->options([
+                'query_by' => 'title, content, tags',
+                'sort_by' => $sort ?: null,
+            ])
+            ->raw();
+
+        $documents = collect($results['hits'])->map(fn($hit) => $hit['document']);
+
+        $paginated = new LengthAwarePaginator(
+            $documents->forPage($page, $perPage),
+            count($documents),
+            $perPage,
+            $page,
+            ['path' => LengthAwarePaginator::resolveCurrentPath()],
+        );
+
+        return $paginated;
     }
 
     /**
@@ -120,21 +185,5 @@ class ProtocolController extends Controller
     {
         $protocol->delete();
         return response()->noContent();
-    }
-
-    /**
-     * Search for protocols based on a query string.
-     *
-     * @param Request $request
-     * @return LengthAwarePaginator
-     */
-    public function search(Request $request): LengthAwarePaginator
-    {
-        $request->validate(['q' => 'required|string']);
-        return Protocol::search($request->q)
-            ->options([
-                'query_by' => 'title, content, tags',
-            ])
-            ->paginate(10);
     }
 }

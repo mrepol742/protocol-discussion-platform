@@ -97,7 +97,7 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
                 <p className="text-gray-600 mb-2">{protocol.content}</p>
 
                 <small className="text-gray-500">
-                    by {protocol.author.name} on{' '}
+                    by {protocol?.author?.name || protocol.author_name} on{' '}
                     {new Date(protocol.created_at).toLocaleDateString()}
                 </small>
 

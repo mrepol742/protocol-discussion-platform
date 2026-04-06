@@ -6,6 +6,7 @@ import Pagination from '../components/shared/Pagination'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import type { Response } from '../types/response'
 
 export default function Comments() {
     const { threadId } = useParams<{ threadId: string }>()
@@ -18,14 +19,14 @@ export default function Comments() {
     const commentsEndRef = useRef<HTMLDivElement>(null)
 
     const fetchComments = async (page = 1) => {
-        const commentsResponse = await getComments(Number(threadId), page)
+        const commentsResponse = (await getComments(Number(threadId), page)) as Response
         setComments(commentsResponse.data.data)
         setCurrentPage(commentsResponse.data.current_page)
         setLastPage(commentsResponse.data.last_page)
     }
 
     const fetchThreadInfo = async () => {
-        const threadInfoResponse = await getThreadInfo(Number(threadId))
+        const threadInfoResponse = (await getThreadInfo(Number(threadId))) as Response
         setThread(threadInfoResponse.data)
     }
 
