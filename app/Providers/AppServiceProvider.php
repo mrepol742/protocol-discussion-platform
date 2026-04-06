@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Review;
 use App\Models\Thread;
 use App\Models\Comment;
+use App\Models\User;
 use App\Models\Vote;
 use App\Observers\ReviewObserver;
 use App\Observers\ThreadObserver;
@@ -36,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'thread' => Thread::class,
             'comment' => Comment::class,
+            'user' => User::class
         ]);
     }
 }

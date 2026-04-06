@@ -13,11 +13,11 @@ use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\VoteController;
 
 RateLimiter::for('api-auth-actions', function ($request) {
-    return Limit::perMinute(10)->by($request->user()->id ?: $request->ip());
+    return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
 });
 
 RateLimiter::for('api-actions', function ($request) {
-    return Limit::perMinute(60)->by($request->user()->id ?: $request->ip());
+    return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
 });
 
 Route::group(['prefix' => 'auth'], function () {
