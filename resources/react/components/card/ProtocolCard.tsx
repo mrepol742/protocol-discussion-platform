@@ -1,4 +1,4 @@
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsisVertical, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { useUser } from '../../context/UserContext'
@@ -81,19 +81,19 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
                                             setDropdownOpen(false)
                                         }}
                                     >
-                                        Update
+                                        <FontAwesomeIcon icon={faPencil} className="me-1" /> Update
                                     </button>
                                 )}
                                 {onDelete && (
                                     <button
-                                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
                                         onClick={(e) => {
                                             e.stopPropagation()
                                             onDelete(protocol)
                                             setDropdownOpen(false)
                                         }}
                                     >
-                                        Delete
+                                        <FontAwesomeIcon icon={faTrash} className="me-1" /> Delete
                                     </button>
                                 )}
                             </div>

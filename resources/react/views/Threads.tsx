@@ -23,6 +23,7 @@ import type { Response } from '../types/response'
 import Search from '../components/shared/Search'
 import type { SearchThread } from '../types/search'
 import { Rating } from 'react-simple-star-rating'
+import DeleteModal from '../components/modal/DeleteModal'
 
 export default function Threads() {
     const [mode, setMode] = useState('list')
@@ -36,9 +37,11 @@ export default function Threads() {
     const [reviewCurrentPage, setReviewCurrentPage] = useState(1)
     const [reviewLastPage, setReviewLastPage] = useState(1)
     const [isThreadModalOpen, setIsThreadModalOpen] = useState(false)
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [modalThreadAction, setModalThreadAction] = useState<'create' | 'edit'>('create')
     const [selectedThread, setSelectedThread] = useState({
         protocol_id: -1,
+        id: -1,
         title: '',
         body: '',
     })
@@ -149,6 +152,7 @@ export default function Threads() {
                     setIsOpen={setIsThreadModalOpen}
                 />
             </ModalContainer>
+
             <ModalContainer isOpen={isReviewModalOpen} onClose={() => setIsReviewModalOpen(false)}>
                 <ReviewModal
                     form={selectedReview}
@@ -156,6 +160,15 @@ export default function Threads() {
                     isOpen={isReviewModalOpen}
                     setIsOpen={setIsReviewModalOpen}
                     fetchReviews={fetchReviews}
+                />
+            </ModalContainer>
+
+            <ModalContainer isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+                <DeleteModal
+                    type="thread"
+                    item={selectedThread}
+                    isOpen={deleteModalOpen}
+                    setIsOpen={setDeleteModalOpen}
                 />
             </ModalContainer>
 
@@ -188,6 +201,7 @@ export default function Threads() {
                                     setModalThreadAction('create')
                                     setSelectedThread({
                                         protocol_id: Number(protocolId),
+                                        id: -1,
                                         title: '',
                                         body: '',
                                     })
@@ -229,7 +243,9 @@ export default function Threads() {
 
                 <div
                     className={`grid gap-6 ${
-                        mode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+                        mode === 'grid'
+                            ? 'md:grid-cols-2 lg:grid-cols-3'
+                            : 'grid-cols-2 md:grid-cols-1'
                     }`}
                 >
                     {!loading &&
@@ -242,8 +258,25 @@ export default function Threads() {
                                 }
                                 onUpvote={(t) => console.log('Upvote', t)}
                                 onDownvote={(t) => console.log('Downvote', t)}
-                                onUpdate={(t) => console.log('Update', t)}
-                                onDelete={(t) => console.log('Delete', t)}
+                                onUpdate={(t) => {
+                                    setSelectedThread({
+                                        protocol_id: Number(protocolId),
+                                        id: Number(t.id),
+                                        title: t.title,
+                                        body: t.body,
+                                    })
+                                    setModalThreadAction('edit')
+                                    setIsThreadModalOpen(true)
+                                }}
+                                onDelete={(t) => {
+                                    setSelectedThread({
+                                        protocol_id: Number(protocolId),
+                                        id: Number(t.id),
+                                        title: t.title,
+                                        body: t.body,
+                                    })
+                                    setDeleteModalOpen(true)
+                                }}
                             />
                         ))}
                 </div>
@@ -335,9 +368,7 @@ export default function Threads() {
                                     Your review
                                 </div>
                             )}
-                            <h3 className="font-semibold">
-                                {review.user.name}
-                            </h3>
+                            <h3 className="font-semibold">{review.user.name}</h3>
                             <p className="text-gray-600">{review.feedback}</p>
 
                             <div className="mt-1">

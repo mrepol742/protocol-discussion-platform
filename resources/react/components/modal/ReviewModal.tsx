@@ -22,13 +22,15 @@ export default function ReviewModal({
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
-        setFormData({
-            protocol_id: form?.protocol_id || -1,
-            user_id: form?.user_id || -1,
-            rating: form?.rating || 0,
-            feedback: form?.feedback || '',
-        })
-    }, [form])
+        if (isOpen) {
+            setFormData({
+                protocol_id: form?.protocol_id || -1,
+                user_id: form?.user_id || -1,
+                rating: form?.rating || 0,
+                feedback: form?.feedback || '',
+            })
+        }
+    }, [form, isOpen])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Modal from '../shared/Modal'
 import Input from '../shared/Input'
 import Textarea from '../shared/TextArea'
-import { createProtocol } from '../../services/protocols'
+import { createProtocol, updateProtocol } from '../../services/protocols'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,12 +23,16 @@ export default function ProtocolModal({
     const navigate = useNavigate()
 
     useEffect(() => {
-        setFormData({
-            title: form?.title || '',
-            content: form?.content || '',
-            tags: form?.tags || [],
-        })
-    }, [form])
+        if (isOpen) {
+            setFormData({
+                id: form?.id || null,
+                title: form?.title || '',
+                content: form?.content || '',
+                tags: form?.tags || [],
+            })
+            setTagsInput(form?.tags?.join(', ') || '')
+        }
+    }, [form, isOpen])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -52,6 +56,7 @@ export default function ProtocolModal({
 
     const clearForm = () => {
         setFormData({
+            id: null,
             title: '',
             content: '',
             tags: [],
@@ -69,6 +74,14 @@ export default function ProtocolModal({
             return
         }
 
+        if (modalAction === 'create') {
+            handleCreate()
+        } else if (modalAction === 'edit') {
+            handleEdit()
+        }
+    }
+
+    const handleCreate = () => {
         setIsLoading(true)
         const response = createProtocol(formData.title, formData.content, formData.tags)
 
@@ -79,7 +92,43 @@ export default function ProtocolModal({
                 render({ data }) {
                     const error = data as Error
                     return (
-                        error.response.data.message || error.response.data.error || 'Login failed'
+                        error.response.data.message ||
+                        error.response.data.error ||
+                        'Creation failed'
+                    )
+                },
+            },
+        })
+
+        response.then((response) => {
+            clearForm()
+            setIsLoading(false)
+            navigate(0) // Refresh the page to show the new protocol
+        })
+
+        response.catch(() => {
+            setIsLoading(false)
+        })
+    }
+
+    const handleEdit = () => {
+        setIsLoading(true)
+
+        const response = updateProtocol(
+            formData.id,
+            formData.title,
+            formData.content,
+            formData.tags,
+        )
+
+        toast.promise(response, {
+            pending: 'Updating protocol...',
+            success: 'Protocol updated successfully',
+            error: {
+                render({ data }) {
+                    const error = data as Error
+                    return (
+                        error.response.data.message || error.response.data.error || 'Update failed'
                     )
                 },
             },

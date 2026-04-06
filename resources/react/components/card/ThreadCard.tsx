@@ -1,5 +1,4 @@
-// components/ThreadCard.tsx
-import { faEllipsisVertical } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsisVertical, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 
@@ -101,23 +100,23 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                                         className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            onUpdate(protocol)
+                                            onUpdate(thread)
                                             setDropdownOpen(false)
                                         }}
                                     >
-                                        Update
+                                        <FontAwesomeIcon icon={faPencil} className="me-1" /> Update
                                     </button>
                                 )}
                                 {onDelete && (
                                     <button
-                                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            onDelete(protocol)
+                                            onDelete(thread)
                                             setDropdownOpen(false)
                                         }}
                                     >
-                                        Delete
+                                        <FontAwesomeIcon icon={faTrash} className="me-1" /> Delete
                                     </button>
                                 )}
                             </div>
@@ -127,7 +126,6 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
 
                 <p className="text-gray-600 mt-1">{thread.body}</p>
 
-                {/* Comments */}
                 {thread.comments && thread.comments.length > 0 && (
                     <ul className="mt-3 border-l-2 border-gray-200 pl-3 space-y-1">
                         {thread.comments.map((comment) => (

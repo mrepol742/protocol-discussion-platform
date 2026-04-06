@@ -62,7 +62,7 @@ class ThreadController extends Controller
             ->options([
                 'query_by' => 'title, body, tags',
                 'sort_by' => $sort ?: null,
-                'filter_by' => 'protocol_id:=' .$id,
+                'filter_by' => 'protocol_id:=' . $id,
             ])
             ->raw();
 
@@ -144,8 +144,19 @@ class ThreadController extends Controller
     public function update(Request $request, Thread $thread): JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'title' => ['required', 'string', 'max:255', 'unique:threads,title', new NotBadWord()],
-            'body' => ['required', 'string', 'unique:threads,body', new NotBadWord()],
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:threads,title,' . $thread->id,
+                new NotBadWord(),
+            ],
+            'body' => [
+                'required',
+                'string',
+                'unique:threads,body,' . $thread->id,
+                new NotBadWord(),
+            ],
         ]);
 
         if ($validator->fails()) {

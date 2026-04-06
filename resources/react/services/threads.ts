@@ -85,16 +85,17 @@ export function createThread(protocolId: number, title: string, body: string) {
 }
 
 /**
- * Deletes a specific thread by its ID from a specific protocol
+ * Updates the title and body of a specific thread by its ID under a specific protocol
  *
- * @param protocolId - The ID of the protocol from which to delete the thread
- * @param threadId - The ID of the thread to delete
- * @returns A promise that resolves with the response confirming the deletion or rejects with an error
+ * @param threadId - The ID of the thread to update
+ * @param title - The new title for the thread
+ * @param body - The new body for the thread
+ * @returns A promise that resolves with the response containing the updated thread or rejects with an error
  */
-export function deleteThread(protocolId: number, threadId: number) {
+export function updateThread(threadId: number, title: string, body: string) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .delete(`/protocols/${protocolId}/threads/${threadId}`)
+            .put(`/threads/${threadId}`, { title, body })
             .then((response) => {
                 resolve(response)
             })
@@ -105,18 +106,15 @@ export function deleteThread(protocolId: number, threadId: number) {
 }
 
 /**
- * Updates the title and content of a specific thread by its ID under a specific protocol
+ * Deletes a specific thread by its ID from a specific protocol
  *
- * @param protocolId - The ID of the protocol to which the thread belongs
- * @param threadId - The ID of the thread to update
- * @param title - The new title for the thread
- * @param content - The new content for the thread
- * @returns A promise that resolves with the response containing the updated thread or rejects with an error
+ * @param threadId - The ID of the thread to delete
+ * @returns A promise that resolves with the response confirming the deletion or rejects with an error
  */
-export function updateThread(protocolId: number, threadId: number, title: string, content: string) {
+export function deleteThread(threadId: number) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .put(`/protocols/${protocolId}/threads/${threadId}`, { title, content })
+            .delete(`/threads/${threadId}`)
             .then((response) => {
                 resolve(response)
             })

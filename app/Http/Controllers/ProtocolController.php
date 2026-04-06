@@ -175,10 +175,15 @@ class ProtocolController extends Controller
                 'required',
                 'string',
                 'max:255',
-                'unique:protocols,title',
+                'unique:protocols,title,' . $protocol->id,
                 new NotBadWord(),
             ],
-            'content' => ['required', 'string', 'unique:protocols,content', new NotBadWord()],
+            'content' => [
+                'required',
+                'string',
+                'unique:protocols,content,' . $protocol->id,
+                new NotBadWord(),
+            ],
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);

@@ -18,6 +18,7 @@ import Search from '../components/shared/Search'
 import type { SearchProtocol } from '../types/search'
 import type { Response } from '../types/response'
 import { useViewPreference } from '../context/ViewPreference'
+import DeleteModal from '../components/modal/DeleteModal'
 
 const Home = () => {
     const [protocols, setProtocols] = useState([])
@@ -26,12 +27,14 @@ const Home = () => {
     const [loading, setLoading] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [modalAction, setModalAction] = useState<'create' | 'edit'>('create')
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
     const [selectedProtocol, setSelectedProtocol] = useState<any>({
+        id: null,
         title: '',
         content: '',
         tags: [],
     })
-    const { mode, toggleMode } = useViewPreference();
+    const { mode, toggleMode } = useViewPreference()
     const { user } = useUser()
     const navigate = useNavigate()
     const location = useLocation()
@@ -86,6 +89,15 @@ const Home = () => {
                 />
             </ModalContainer>
 
+            <ModalContainer isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+                <DeleteModal
+                    type="protocol"
+                    item={selectedProtocol}
+                    isOpen={deleteModalOpen}
+                    setIsOpen={setDeleteModalOpen}
+                />
+            </ModalContainer>
+
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
                     <Search type="protocols" />
@@ -97,6 +109,7 @@ const Home = () => {
                                     setIsModalOpen(true)
                                     setModalAction('create')
                                     setSelectedProtocol({
+                                        id: null,
                                         title: '',
                                         content: '',
                                         tags: [],
@@ -140,7 +153,7 @@ const Home = () => {
 
                 <div
                     className={`grid gap-6 ${
-                        mode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-1'
+                        mode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 md:grid-cols-1'
                     }`}
                 >
                     {!loading &&
@@ -149,8 +162,15 @@ const Home = () => {
                                 key={protocol.id}
                                 protocol={protocol}
                                 onClick={() => navigate(`/protocols/${protocol.id}`)}
-                                onUpdate={(p) => console.log('Update', p)}
-                                onDelete={(p) => console.log('Delete', p)}
+                                onUpdate={(p) => {
+                                    setSelectedProtocol(p)
+                                    setModalAction('edit')
+                                    setIsModalOpen(true)
+                                }}
+                                onDelete={(p) => {
+                                    setSelectedProtocol(p)
+                                    setDeleteModalOpen(true)
+                                }}
                             />
                         ))}
                 </div>

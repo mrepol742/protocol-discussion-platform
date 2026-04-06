@@ -3,7 +3,7 @@ import Modal from '../shared/Modal'
 import Input from '../shared/Input'
 import Textarea from '../shared/TextArea'
 import { toast } from 'react-toastify'
-import { createThread } from '../../services/threads'
+import { createThread, updateThread } from '../../services/threads'
 import { useNavigate } from 'react-router-dom'
 
 export default function ThreadModal({
@@ -22,12 +22,15 @@ export default function ThreadModal({
     const navigate = useNavigate()
 
     useEffect(() => {
-        setFormData({
-            protocol_id: form?.protocol_id || -1,
-            title: form?.title || '',
-            body: form?.body || '',
-        })
-    }, [form])
+        if (isOpen) {
+            setFormData({
+                protocol_id: form?.protocol_id || -1,
+                id: form?.id || -1,
+                title: form?.title || '',
+                body: form?.body || '',
+            })
+        }
+    }, [form, isOpen])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
@@ -41,6 +44,7 @@ export default function ThreadModal({
     const clearForm = () => {
         setFormData({
             protocol_id: -1,
+            id: -1,
             title: '',
             body: '',
         })
@@ -57,6 +61,14 @@ export default function ThreadModal({
             return
         }
 
+        if (modalAction === 'create') {
+            handleCreate()
+        } else if (modalAction === 'edit') {
+            handleUpdate()
+        }
+    }
+
+    const handleCreate = async () => {
         setIsLoading(true)
         const response = createThread(formData.protocol_id, formData.title, formData.body)
 
@@ -67,7 +79,43 @@ export default function ThreadModal({
                 render({ data }) {
                     const error = data as Error
                     return (
-                        error.response.data.message || error.response.data.error || 'Login failed'
+                        error.response.data.message ||
+                        error.response.data.error ||
+                        'Thread creation failed'
+                    )
+                },
+            },
+        })
+
+        response.then((response) => {
+            clearForm()
+            setIsLoading(false)
+            navigate(0) // Refresh the page to show the new thread in the list
+        })
+
+        response.catch(() => {
+            setIsLoading(false)
+        })
+    }
+
+    const handleUpdate = async () => {
+        setIsLoading(true)
+        const response = updateThread(
+            formData.id,
+            formData.title,
+            formData.body,
+        )
+
+        toast.promise(response, {
+            pending: 'Updating thread...',
+            success: 'Thread updated successfully',
+            error: {
+                render({ data }) {
+                    const error = data as Error
+                    return (
+                        error.response.data.message ||
+                        error.response.data.error ||
+                        'Thread update failed'
                     )
                 },
             },
