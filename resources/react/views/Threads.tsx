@@ -261,8 +261,6 @@ export default function Threads() {
                                 onClick={() =>
                                     navigate(`/protocols/${protocol.id}/threads/${thread.id}`)
                                 }
-                                onUpvote={(t) => console.log('Upvote', t)}
-                                onDownvote={(t) => console.log('Downvote', t)}
                                 onUpdate={(t) => {
                                     setSelectedThread({
                                         protocol_id: Number(protocolId),

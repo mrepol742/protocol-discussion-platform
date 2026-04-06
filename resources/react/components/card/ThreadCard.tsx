@@ -1,6 +1,8 @@
 import { faEllipsisVertical, faPencil, faTrash } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
+import { castVote } from '../../services/votes'
+import { toast } from 'react-toastify'
 
 interface Comment {
     id: string
@@ -12,15 +14,13 @@ interface Thread {
     id: string
     title: string
     body: string
-    votes?: number
+    votes_count?: number
     comments?: Comment[]
 }
 
 interface ThreadCardProps {
     isOwner: boolean
     thread: Thread
-    onUpvote?: (thread: Thread) => void
-    onDownvote?: (thread: Thread) => void
     onUpdate?: (thread: Thread) => void
     onDelete?: (thread: Thread) => void
     onClick?: () => void
@@ -29,25 +29,71 @@ interface ThreadCardProps {
 const ThreadCard: React.FC<ThreadCardProps> = ({
     isOwner,
     thread,
-    onUpvote,
-    onDownvote,
+    onClick,
     onUpdate,
     onDelete,
-    onClick,
 }) => {
-    const [votes, setVotes] = useState(thread.votes || 0)
+    // user's current vote on this thread: null, 'upvote' or 'downvote'
+    const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null)
+    const [votesCount, setVotesCount] = useState(thread.votes_count ?? 0)
     const [dropdownOpen, setDropdownOpen] = useState(false)
+
+    const handleVote = async (isUpvote: boolean) => {
+        let delta = 0
+
+        if (userVote === 'upvote' && isUpvote) {
+            // Remove upvote
+            delta = -1
+            setUserVote(null)
+        } else if (userVote === 'downvote' && !isUpvote) {
+            // Remove downvote
+            delta = 1
+            setUserVote(null)
+        } else if (userVote === 'upvote' && !isUpvote) {
+            // Switch up -> down
+            delta = -2
+            setUserVote('downvote')
+        } else if (userVote === 'downvote' && isUpvote) {
+            // Switch down -> up
+            delta = 2
+            setUserVote('upvote')
+        } else if (userVote === null) {
+            // First vote
+            delta = isUpvote ? 1 : -1
+            setUserVote(isUpvote ? 'upvote' : 'downvote')
+        }
+
+        setVotesCount((prev) => prev + delta)
+
+        try {
+            const response = castVote(Number(thread.id), 'thread', isUpvote)
+            toast.promise(response, {
+                pending: 'Casting vote...',
+                success: 'Vote cast successfully',
+                error: {
+                    render({ data }) {
+                        const error = data as Error
+                        return (
+                            error.response?.data?.message ||
+                            error.response?.data?.error ||
+                            'Failed to cast vote'
+                        )
+                    },
+                },
+            })
+        } catch (err) {
+            console.error('Vote failed', err)
+        }
+    }
 
     const handleUpvote = (e: React.MouseEvent) => {
         e.stopPropagation()
-        setVotes(votes + 1)
-        onUpvote?.(thread)
+        handleVote(true)
     }
 
     const handleDownvote = (e: React.MouseEvent) => {
         e.stopPropagation()
-        setVotes(votes - 1)
-        onDownvote?.(thread)
+        handleVote(false)
     }
 
     const toggleDropdown = (e: React.MouseEvent) => {
@@ -64,14 +110,22 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
             <div className="flex flex-col items-center mr-4 select-none">
                 <button
                     onClick={handleUpvote}
-                    className="text-gray-400 hover:text-green-500 transition text-xl"
+                    className={`text-xl transition ${
+                        userVote === 'upvote'
+                            ? 'text-green-500'
+                            : 'text-gray-400 hover:text-green-500'
+                    }`}
                 >
                     ▲
                 </button>
-                <span className="font-semibold">{votes}</span>
+                <span className="font-semibold">{votesCount}</span>
                 <button
                     onClick={handleDownvote}
-                    className="text-gray-400 hover:text-red-500 transition text-xl"
+                    className={`text-xl transition ${
+                        userVote === 'downvote'
+                            ? 'text-red-500'
+                            : 'text-gray-400 hover:text-red-500'
+                    }`}
                 >
                     ▼
                 </button>
@@ -82,7 +136,6 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                 <div className="flex justify-between items-start">
                     <h3 className="font-semibold text-gray-800 text-lg">{thread.title}</h3>
 
-                    {/* Action dropdown */}
                     {isOwner && (onUpdate || onDelete) && (
                         <div className="relative">
                             <button
@@ -94,8 +147,8 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
 
                             <div
                                 className={`absolute right-0 mt-1 w-32 bg-white border rounded-md shadow-lg z-50
-                  ${dropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
-             `}
+                                    ${dropdownOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}
+                                `}
                             >
                                 {onUpdate && (
                                     <button

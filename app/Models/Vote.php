@@ -9,5 +9,13 @@ class Vote extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'votable', 'is_upvote'];
+    protected $fillable = ['user_id', 'votable_id', 'votable_type', 'is_upvote'];
+
+    /**
+     * Get the parent votable model (thread or comment).
+     */
+    public function votable(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo();
+    }
 }

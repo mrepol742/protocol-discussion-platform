@@ -33,13 +33,11 @@ class VoteController extends Controller
             );
         }
 
-        $model = $request->votable_type === 'thread' ? Thread::class : Comment::class;
-
         $vote = Vote::updateOrCreate(
             [
                 'user_id' => auth()->id(),
                 'votable_id' => $request->votable_id,
-                'votable_type' => $model,
+                'votable_type' => $request->votable_type,
             ],
             [
                 'is_upvote' => $request->is_upvote,

@@ -77,16 +77,8 @@ class ProtocolController extends Controller
         $userId = auth()->check() ? auth()->id() : null;
         $filter = null;
 
-        if ($userId) {
-            if ($request->everyone) {
-                // Exclude current user's protocols
-                $filter = "author_id:!= $userId";
-                info('Excluding user ID: ' . $userId);
-            } else {
-                // Meilisearch expects array or string filter like "author_id:= 123"
-                $filter = "author_id:= $userId";
-                info('Filtering out user ID: ' . $userId);
-            }
+        if ($userId && !$request->everyone) {
+            $filter = "author_id:= $userId";
         }
 
         $results = Protocol::search($query)
