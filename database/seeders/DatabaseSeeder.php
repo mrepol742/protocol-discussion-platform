@@ -37,6 +37,7 @@ class DatabaseSeeder extends Seeder
         $threads->each(function ($thread) {
             $comments = Comment::factory(rand(3, 6))->create([
                 'thread_id' => $thread->id,
+                'body' => fake()->paragraph(),
             ]);
 
             // Add replies
@@ -58,6 +59,8 @@ class DatabaseSeeder extends Seeder
                 Review::factory()->create([
                     'protocol_id' => $protocol->id,
                     'user_id' => $user->id,
+                    'rating' => rand(1, 5),
+                    'feedback' => fake()->sentence(),
                 ]);
             });
         }

@@ -7,12 +7,14 @@ import Loading from './components/shared/Loading'
 import ErrorBoundary from './errors/ErrorBoundary'
 import ScrollToTop from './components/ui/ScrollToTop'
 import ScrollTop from './components/ui/ScrollTop'
+import TopLoader from './components/ui/TopLoader'
 
 const App: React.FC = () => {
     return (
         <BrowserRouter>
             <Suspense fallback={<Loading />}>
                 <ErrorBoundary>
+                    <TopLoader />
                     <ScrollToTop />
                     <ScrollTop />
 

@@ -7,6 +7,7 @@ import axiosInstance from '../lib/axios'
  * @param isMostRecent - Whether to sort by most recent protocols
  * @param isMostReviews - Whether to sort by most reviewed protocols
  * @param isHighestRated - Whether to sort by highest rated or most sum upvotes protocols
+ * @param everyone - Whether to show protocols from everyone or just the user's account (only for signed-in users)
  * @param page - The page number for pagination (default: 1)
  * @returns A promise that resolves with the response containing the list of protocols or rejects with an error
  */
@@ -15,12 +16,13 @@ export function getProtocols(
     isMostRecent: boolean,
     isMostReviews: boolean,
     isHighestRated: boolean,
+    everyone: boolean,
     page: number = 1,
 ) {
     return new Promise((resolve, reject) => {
         axiosInstance
             .get('/protocols', {
-                params: { q: query, isMostRecent, isMostReviews, isHighestRated, page },
+                params: { q: query, isMostRecent, isMostReviews, isHighestRated, everyone, page },
             })
             .then((response) => {
                 resolve(response)

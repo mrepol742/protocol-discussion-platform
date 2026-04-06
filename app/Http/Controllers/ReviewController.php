@@ -57,7 +57,7 @@ class ReviewController extends Controller
      */
     public function show($id): LengthAwarePaginator
     {
-        return Review::where('protocol_id', $id)->with('user')->latest()->paginate(10);
+        return Review::where('protocol_id', $id)->with('user')->latest()->paginate(20);
     }
 
     /**

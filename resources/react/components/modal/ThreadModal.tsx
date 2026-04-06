@@ -4,22 +4,22 @@ import Input from '../shared/Input'
 import Textarea from '../shared/TextArea'
 import { toast } from 'react-toastify'
 import { createThread } from '../../services/threads'
+import { useNavigate } from 'react-router-dom'
 
 export default function ThreadModal({
     form,
     modalAction,
     isOpen,
     setIsOpen,
-    fetchThreads,
 }: {
     form: any
     modalAction: 'create' | 'edit'
     isOpen: boolean
     setIsOpen: (open: boolean) => void
-    fetchThreads: () => void
 }) {
     const [formData, setFormData] = useState(form)
     const [isLoading, setIsLoading] = useState(false)
+    const navigate = useNavigate()
 
     useEffect(() => {
         setFormData({
@@ -76,7 +76,7 @@ export default function ThreadModal({
         response.then((response) => {
             clearForm()
             setIsLoading(false)
-            fetchThreads()
+            navigate(0) // Refresh the page to show the new thread in the list
         })
 
         response.catch(() => {

@@ -36,6 +36,11 @@ class ProtocolController extends Controller
                 FILTER_VALIDATE_BOOLEAN,
                 FILTER_NULL_ON_FAILURE,
             ),
+            'everyone' => filter_var(
+                $request->query('everyone'),
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE,
+            ),
         ]);
 
         $request->validate([
@@ -43,10 +48,11 @@ class ProtocolController extends Controller
             'isMostRecent' => 'nullable|boolean',
             'isMostReviews' => 'nullable|boolean',
             'isHighestRated' => 'nullable|boolean', // true = rate, false = upvotes
+            'everyone' => 'nullable|boolean',
         ]);
 
         $query = $request->q;
-        $perPage = 10;
+        $perPage = 20;
         $page = LengthAwarePaginator::resolveCurrentPage();
 
         $sortFields = [];
@@ -68,10 +74,20 @@ class ProtocolController extends Controller
         // Join into a comma-separated string for sort_by
         $sort = implode(',', $sortFields);
 
+        $userId = auth()->check() ? auth()->id() : null;
+        $filter = null;
+
+        if ($request->everyone && $userId) {
+            // Meilisearch expects array or string filter like "author_id:= 123"
+            $filter = "author_id:= $userId";
+            info('Filtering out user ID: ' . $userId);
+        }
+
         $results = Protocol::search($query)
             ->options([
                 'query_by' => 'title, content, tags',
                 'sort_by' => $sort ?: null,
+                'filter_by' => $filter,
             ])
             ->raw();
 
@@ -105,7 +121,7 @@ class ProtocolController extends Controller
                 new NotBadWord(),
             ],
             'content' => ['required', 'string', 'unique:protocols,content', new NotBadWord()],
-            'tags' => 'nullable|array',
+            'tags' => 'required|array',
             'tags.*' => 'string|max:50',
         ]);
 

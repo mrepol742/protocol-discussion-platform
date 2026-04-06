@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import type { SearchProtocol } from '../../types/search'
 import { useNavigate } from 'react-router-dom'
+import { useUser } from '../../context/UserContext'
 
 /**
  * Search component for protocols and threads with debounced input and filter options.
@@ -12,6 +13,7 @@ import { useNavigate } from 'react-router-dom'
  * - Most Recent: Toggles the 'recent' query parameter to show the most recently created items.
  * - Most Reviewed (protocols only): Toggles the 'reviewed' query parameter to show items with the most reviews.
  * - Top Rated (threads only): Toggles the 'upvoted' query parameter to show threads with the most upvotes.
+ * - Everyone (protocols only): Toggles the 'everyone' query parameter to show threads from all users. (for logged in users only)
  * - Sort Dropdown (protocols only): Allows sorting by 'Top Rated' or 'Most Upvotes', which sets the 'sort' query parameter accordingly.
  *
  * The component uses debouncing to delay the search term update until the user has stopped typing for 300ms, reducing unnecessary updates and API calls.
@@ -24,9 +26,11 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
     const [isMostRecent, setIsMostRecent] = useState(false)
     const [isMostReviewed, setIsMostReviewed] = useState(false)
     const [isMostUpvoted, setIsMostUpvoted] = useState(false)
+    const [isEveryone, setIsEveryone] = useState(false)
     const [sortType, setSortType] = useState<'topRated' | 'mostUpvotes'>('topRated')
     const [initialized, setInitialized] = useState(false)
     const navigate = useNavigate()
+    const { user } = useUser()
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
@@ -35,6 +39,7 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
         const mostRecent = params.get('recent') === 'true'
         const mostReviewed = params.get('reviewed') === 'true'
         const mostUpvoted = params.get('upvoted') === 'true'
+        const everyone = params.get('everyone') === 'true'
         const sort = params.get('sort') as 'topRated' | 'mostUpvotes' | null
 
         setSearchTerm(q)
@@ -42,6 +47,7 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
         setIsMostRecent(mostRecent)
         setIsMostReviewed(mostReviewed)
         setIsMostUpvoted(mostUpvoted)
+        setIsEveryone(everyone)
         if (sort) setSortType(sort)
 
         setInitialized(true)
@@ -64,10 +70,19 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
         if (isMostRecent) params.set('recent', 'true')
         if (isMostReviewed) params.set('reviewed', 'true')
         if (isMostUpvoted) params.set('upvoted', 'true')
+        if (isEveryone) params.set('everyone', 'true')
         if (sortType && type === 'protocols') params.set('sort', sortType)
 
         navigate(`?${params.toString()}`)
-    }, [debouncedTerm, isMostRecent, isMostReviewed, isMostUpvoted, sortType, initialized])
+    }, [
+        debouncedTerm,
+        isMostRecent,
+        isMostReviewed,
+        isMostUpvoted,
+        isEveryone,
+        sortType,
+        initialized,
+    ])
 
     return (
         <div className="flex flex-col lg:flex-row lg:items-center gap-2 mb-4 md:mb-0">
@@ -160,6 +175,19 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
                                 </div>
                             )}
                         </div>
+
+                        {user && (
+                            <button
+                                onClick={() => {
+                                    setIsEveryone(!isEveryone)
+                                }}
+                                className={`px-3 py-2 border rounded-md hover:bg-gray-300 transition whitespace-nowrap ${
+                                    isEveryone ? 'bg-gray-300' : ''
+                                }`}
+                            >
+                                Everyone
+                            </button>
+                        )}
                     </>
                 )}
             </div>

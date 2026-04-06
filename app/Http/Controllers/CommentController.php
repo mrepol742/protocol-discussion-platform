@@ -47,12 +47,12 @@ class CommentController extends Controller
      * @param int $id
      * @return LengthAwarePaginator
      */
-    public function show($id): LengthAwarePaginator
+    public function show($id)
     {
         return Comment::where('thread_id', $id)
             ->with(['user', 'replies', 'votes'])
             ->latest()
-            ->paginate(10);
+            ->get();
     }
 
     /**

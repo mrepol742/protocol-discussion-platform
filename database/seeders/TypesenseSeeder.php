@@ -36,6 +36,7 @@ class TypesenseSeeder extends Seeder
                     ['name' => 'reviews_count', 'type' => 'int32'],
                     ['name' => 'average_rating', 'type' => 'float'],
                     ['name' => 'votes_count', 'type' => 'int32'],
+                    ['name' => 'author_id', 'type' => 'string'],
                     ['name' => 'author_name', 'type' => 'string'],
                     ['name' => 'created_at', 'type' => 'int64'],
                     ['name' => 'updated_at', 'type' => 'int64'],

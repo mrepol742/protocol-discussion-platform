@@ -51,7 +51,7 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">{protocol.title}</h2>
 
                     {/* Actions Dropdown */}
-                    {protocol.author_id == user?.id && (onUpdate || onDelete) && (
+                    {user && protocol.author_id == user?.id && (onUpdate || onDelete) && (
                         <div className="relative">
                             <button
                                 onClick={toggleDropdown}
@@ -96,9 +96,10 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
 
                 <p className="text-gray-600 mb-2">{protocol.content}</p>
 
+                {/* the *1000 is to convert unix timestamp strtotime($this->created_at) to readable date */}
                 <small className="text-gray-500">
                     by {protocol?.author?.name || protocol.author_name} on{' '}
-                    {new Date(protocol.created_at).toLocaleDateString()}
+                    {new Date(protocol.created_at * 1000).toLocaleDateString()}
                 </small>
 
                 {protocol.tags && protocol.tags.length > 0 && (
@@ -106,7 +107,7 @@ const ProtocolCard: React.FC<ProtocolCardProps> = ({
                         {protocol.tags.map((tag: string, idx: number) => (
                             <span
                                 key={idx}
-                                className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded-full"
+                                className="text-sm bg-blue-100 text-blue-800 px-4 py-1 rounded-full"
                             >
                                 {tag}
                             </span>

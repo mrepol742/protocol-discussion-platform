@@ -1,3 +1,5 @@
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,9 +25,17 @@ export default function UserMenu({ user }) {
             {user && (
                 <button
                     onClick={() => setOpen(!open)}
-                    className="flex items-center justify-center w-10 h-10 ms-4 text-sm font-medium text-white bg-gray-800 rounded-full focus:outline-none"
+                    className="outline-none flex flex-row items-center"
                 >
-                    {user.name[0]}
+                    <div className="flex items-center justify-center w-10 h-10 ms-4 text-sm font-medium text-white bg-gray-800 rounded-full focus:outline-none">
+                        {user.name[0]}
+                    </div>
+                    <div className="hidden md:inline-block">
+                        <span className="ms-2 text-gray-700 font-medium">
+                            {user.name}
+                        </span>
+                        <FontAwesomeIcon icon={faChevronDown} className="ms-1 text-gray-500" />
+                    </div>
                 </button>
             )}
 

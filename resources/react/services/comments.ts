@@ -4,13 +4,12 @@ import axiosInstance from '../lib/axios'
  * Get comments for a specific thread.
  *
  * @param threadId - The ID of the thread to fetch comments for.
- * @param page - The page number for pagination (optional, default is 1).
  * @returns A promise that resolves with the response containing the comments data or rejects with an error.
  */
-export function getComments(threadId: number, page: number) {
+export function getComments(threadId: number) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .get(`/comments/${threadId}`, { params: { page } })
+            .get(`/comments/${threadId}`)
             .then((response) => {
                 resolve(response)
             })

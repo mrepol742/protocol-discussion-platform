@@ -33,6 +33,7 @@ class Protocol extends Model
             'reviews_count' => $this->reviews()->count(),
             'average_rating' => (float) $this->reviews()->avg('rating'),
             'votes_count' => $this->threads()->sum('votes_count'),
+            'author_id' => (string) $this->author_id,
             'author_name' => $this->author?->name,
             'created_at' => strtotime($this->created_at),
             'updated_at' => strtotime($this->updated_at),

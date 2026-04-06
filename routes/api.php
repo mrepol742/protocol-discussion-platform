@@ -26,7 +26,9 @@ Route::group(['prefix' => 'auth'], function () {
  * This was seperated into two resource controllers to allow for unauthenticated users to view protocols and threads,
  * but only authenticated users can create, update, or delete them.
  */
-Route::apiResource('protocols', ProtocolController::class)->only(['index', 'show']);
+Route::middleware('sanctum.optional')
+    ->apiResource('protocols', ProtocolController::class)
+    ->only(['index', 'show']);
 Route::apiResource('protocols', ProtocolController::class)
     ->only(['store', 'update', 'destroy'])
     ->middleware('auth:sanctum');

@@ -6,7 +6,7 @@ import Pagination from '../components/shared/Pagination'
 import { getReviews } from '../services/reviews'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
+import { faChevronLeft, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons'
 import ModalContainer from '../components/shared/ModalContainer'
 import ThreadModal from '../components/modal/ThreadModal'
 import { useUser } from '../context/UserContext'
@@ -15,6 +15,7 @@ import ReviewModal from '../components/modal/ReviewModal'
 import type { Response } from '../types/response'
 import Search from '../components/shared/Search'
 import type { SearchThread } from '../types/search'
+import { Rating } from 'react-simple-star-rating'
 
 export default function Threads() {
     const { protocolId } = useParams<{ protocolId: string }>()
@@ -134,7 +135,6 @@ export default function Threads() {
                     modalAction={modalThreadAction}
                     isOpen={isThreadModalOpen}
                     setIsOpen={setIsThreadModalOpen}
-                    fetchThreads={fetchThreads}
                 />
             </ModalContainer>
             <ModalContainer isOpen={isReviewModalOpen} onClose={() => setIsReviewModalOpen(false)}>
@@ -148,7 +148,19 @@ export default function Threads() {
             </ModalContainer>
 
             <div className="container mx-auto px-4 py-8">
-                <h1 className="text-4xl font-bold mb-2">{protocol.title}</h1>
+                <div className="flex items-center gap-4 mb-2">
+                    <button
+                        onClick={() => navigate('/')}
+                        className="p-2 rounded-full hover:bg-gray-200 transition"
+                    >
+                        <FontAwesomeIcon
+                            icon={faChevronLeft}
+                            className="text-gray-600 hover:text-gray-800 transition"
+                        />
+                    </button>
+                    <h1 className="text-4xl font-bold">{protocol.title}</h1>
+                </div>
+
                 <p className="text-lg text-gray-600 mb-2">{protocol.content}</p>
                 <small className="text-sm text-gray-500 block mb-1">
                     By: {protocol.author.name}
@@ -172,7 +184,7 @@ export default function Threads() {
                                         body: '',
                                     })
                                 }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-700 transition"
                             >
                                 Create Thread
                             </button>
@@ -266,7 +278,7 @@ export default function Threads() {
                                               },
                                     )
                                 }}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-xl shadow hover:bg-blue-700 transition"
+                                className="px-4 py-2 bg-gray-600 text-white rounded-xl shadow hover:bg-gray-700 transition"
                             >
                                 {reviews.some((r) => r.user_id === user.id)
                                     ? 'Edit Review'
@@ -276,14 +288,47 @@ export default function Threads() {
                     )}
                 </div>
 
-                {reviews.length === 0 && <p>No reviews found.</p>}
+                {reviews.length === 0 && (
+                    <div className="flex items-center justify-center">
+                        <div className="text-center">
+                            <FontAwesomeIcon
+                                icon={faExclamationTriangle}
+                                className="text-4xl text-yellow-500 mb-4"
+                            />
+                            <p className="text-gray-500">No reviews found.</p>
+                            <small className="text-gray-400 block mt-2">
+                                There are currently no reviews for this protocol.
+                            </small>
+                        </div>
+                    </div>
+                )}
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                     {reviews.map((review) => (
                         <div key={review.id} className="border p-3 mb-2 rounded">
+                            {review.user_id === user?.id && (
+                                <div className="mb-1 bg-gray-600 w-min whitespace-nowrap text-white rounded text-sm px-2">
+                                    Your review
+                                </div>
+                            )}
                             <h3 className="font-semibold">{review.user.name}</h3>
                             <p className="text-gray-600">{review.feedback}</p>
-                            <p className="text-sm text-gray-500">Rating: {review.rating}/5</p>
+
+                            <div className="mt-1">
+                                <Rating
+                                    initialValue={review.rating}
+                                    allowHover={false}
+                                    disableFillHover
+                                    readonly={true}
+                                    allowFraction
+                                    SVGstyle={{
+                                        width: '16px',
+                                        height: '16px',
+                                        display: 'inline-block',
+                                    }}
+                                    fillStyle={{ display: 'inline-block' }}
+                                />
+                            </div>
                         </div>
                     ))}
                 </div>

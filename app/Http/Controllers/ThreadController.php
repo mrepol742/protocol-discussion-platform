@@ -41,7 +41,7 @@ class ThreadController extends Controller
         ]);
 
         $query = $request->q;
-        $perPage = 10;
+        $perPage = 20;
         $page = LengthAwarePaginator::resolveCurrentPage();
 
         $sortFields = [];
