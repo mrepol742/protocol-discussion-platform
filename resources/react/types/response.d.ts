@@ -2,6 +2,7 @@ export type ResponseData = {
     data: any
     current_page: number
     last_page: number
+    summary?: string
 }
 
 export type Response = {

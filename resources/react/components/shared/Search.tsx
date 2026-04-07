@@ -38,7 +38,7 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
         const q = params.get('q') || ''
         const mostRecent = params.get('recent') === 'true'
         const mostReviewed = params.get('reviewed') === 'true'
-        const mostUpvoted = params.get('upvoted') === 'true'
+        const mostUpvoted = params.get('topRated') === 'true'
         const everyone = params.get('everyone') === 'true'
         const sort = params.get('sort') as 'topRated' | 'mostUpvotes' | null
 
@@ -69,7 +69,7 @@ export default function Search({ type }: { type: 'protocols' | 'threads' }) {
         if (debouncedTerm) params.set('q', debouncedTerm)
         if (isMostRecent) params.set('recent', 'true')
         if (isMostReviewed) params.set('reviewed', 'true')
-        if (isMostUpvoted) params.set('upvoted', 'true')
+        if (isMostUpvoted) params.set('topRated', 'true')
         if (isEveryone) params.set('everyone', 'true')
         if (sortType && type === 'protocols') params.set('sort', sortType)
 

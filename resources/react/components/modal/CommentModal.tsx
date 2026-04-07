@@ -2,32 +2,27 @@ import { useEffect, useState } from 'react'
 import Modal from '../shared/Modal'
 import Textarea from '../shared/TextArea'
 import { toast } from 'react-toastify'
-import { Rating } from 'react-simple-star-rating'
-import { submitReview } from '../../services/reviews'
+import { updateComment } from '../../services/comments'
+import { useNavigate } from 'react-router-dom'
 
-export default function ReviewModal({
+export default function CommentModal({
     form,
-    modalAction,
     isOpen,
     setIsOpen,
-    fetchReviews,
 }: {
     form: any
-    modalAction: 'create' | 'edit'
     isOpen: boolean
     setIsOpen: (open: boolean) => void
-    fetchReviews: () => void
 }) {
     const [formData, setFormData] = useState(form)
     const [isLoading, setIsLoading] = useState(false)
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (isOpen) {
             setFormData({
-                protocol_id: form?.protocol_id || -1,
-                user_id: form?.user_id || -1,
-                rating: form?.rating || 0,
-                feedback: form?.feedback || '',
+                id: form?.id || -1,
+                title: form?.title || '',
             })
         }
     }, [form, isOpen])
@@ -43,10 +38,8 @@ export default function ReviewModal({
 
     const clearForm = () => {
         setFormData({
-            protocol_id: -1,
-            user_id: -1,
-            rating: 0,
-            feedback: '',
+            id: -1,
+            body: '',
         })
         setIsOpen(false)
     }
@@ -62,16 +55,18 @@ export default function ReviewModal({
         }
 
         setIsLoading(true)
-        const response = submitReview(formData.protocol_id, formData.feedback, formData.rating)
+        const response = updateComment(formData.id, formData.title)
 
         toast.promise(response, {
-            pending: 'Submitting review...',
-            success: 'Review submitted successfully',
+            pending: 'Updating comment...',
+            success: 'Comment updated successfully',
             error: {
                 render({ data }) {
                     const error = data as Error
                     return (
-                        error.response.data.message || error.response.data.error || 'Failed to submit review'
+                        error.response.data.message ||
+                        error.response.data.error ||
+                        'Comment update failed'
                     )
                 },
             },
@@ -80,7 +75,7 @@ export default function ReviewModal({
         response.then((response) => {
             clearForm()
             setIsLoading(false)
-            fetchReviews()
+            navigate(0) // Refresh the page to show the updated comment
         })
 
         response.catch(() => {
@@ -88,42 +83,24 @@ export default function ReviewModal({
         })
     }
 
-    const handleRating = (rate) => {
-        setFormData({
-            ...formData,
-            rating: rate, // Convert 0-100 to 0-5
-        })
-    }
-
     return (
         <Modal
-            title={modalAction === 'create' ? 'Create Review' : 'Edit Review'}
+            title="Edit Comment"
             isOpen={isOpen}
             onClose={onClose}
             onConfirm={onConfirm}
             isLoading={isLoading}
         >
             <div className="mb-4">
-                <label htmlFor="feedback" className="block text-gray-700 mb-2">
-                    Your feedback
+                <label htmlFor="title" className="block text-gray-700 mb-2">
+                    Write a comment
                 </label>
                 <Textarea
-                    name="feedback"
-                    value={formData.feedback}
+                    name="title"
+                    value={formData.title}
                     placeholder=""
                     handleChange={handleChange}
                     required
-                />
-            </div>
-
-            <div className="mb-4 flex items-center">
-                <Rating
-                    onClick={handleRating}
-                    initialValue={formData.rating}
-                    allowFraction
-                    transition
-                    SVGstyle={{ display: 'inline-block' }}
-                    fillStyle={{ display: 'inline-block' }}
                 />
             </div>
         </Modal>

@@ -34,6 +34,12 @@ TYPESENSE_API_KEY=your-typesense-api-key
 TYPESENSE_COLLECTION_PREFIX=
 ```
 
+For AI features, set up GROQ:
+
+```env
+GROQ_API_KEY=your-groq-api-key
+```
+
 ---
 
 ### 3. Generate App Key
@@ -120,6 +126,27 @@ Clear and reseed search collections:
 ```sh
 php artisan app:clear-typesense-collections
 php artisan app:seed-typesense-collections
+```
+
+Reindex everything:
+
+```sh
+# reindex all searchable models
+php artisan app:reindex-typesense
+
+# reindex specific models
+php artisan app:reindex-typesense protocols
+php artisan app:reindex-typesense threads
+```
+
+For full reset:
+
+```sh
+php artisan scout:flush "App\Models\Protocol"
+php artisan scout:flush "App\Models\Thread"
+
+php artisan app:seed-typesense-collections
+php artisan app:reindex-typesense
 ```
 
 ---

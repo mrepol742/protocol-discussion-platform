@@ -8,33 +8,20 @@ interface ProtocolCardProps {
     onUpdate?: (protocol: any) => void
     onDelete?: (protocol: any) => void
     onClick?: () => void
-    onUpvote?: (protocol: any) => void
-    onDownvote?: (protocol: any) => void
 }
 
-const ProtocolCard: React.FC<ProtocolCardProps> = ({
-    protocol,
-    onUpdate,
-    onDelete,
-    onClick,
-    onUpvote,
-    onDownvote,
-}) => {
-    const [votes, setVotes] = useState(protocol.votes || 0)
+/**
+ * A card component to display protocol information, including title, author, creation date, content, tags, and actions (update/delete) for the author. It also includes upvote/downvote functionality.
+ *
+ * @param protocol - The protocol object containing details to be displayed on the card.
+ * @param onUpdate - Optional callback function to handle protocol updates, triggered when the update action is selected.
+ * @param onDelete - Optional callback function to handle protocol deletion, triggered when the delete action is selected.
+ * @param onClick - Optional callback function to handle card clicks, allowing for navigation or other interactions.
+ * @returns A styled card component that displays protocol details and provides interactive actions for the author and users.
+ */
+const ProtocolCard: React.FC<ProtocolCardProps> = ({ protocol, onUpdate, onDelete, onClick }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false)
     const { user } = useUser()
-
-    const handleUpvote = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        setVotes(votes + 1)
-        onUpvote?.(protocol)
-    }
-
-    const handleDownvote = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        setVotes(votes - 1)
-        onDownvote?.(protocol)
-    }
 
     const toggleDropdown = (e: React.MouseEvent) => {
         e.stopPropagation()

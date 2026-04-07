@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use App\Models\Thread;
 use Illuminate\Http\Response;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 
 class ThreadController extends Controller

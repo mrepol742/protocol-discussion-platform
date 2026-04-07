@@ -29,6 +29,16 @@ interface ThreadCardProps {
     onClick?: () => void
 }
 
+/**
+ * A card component to display thread information, including title, body, votes, comments, and actions (update/delete) for the author. It also includes upvote/downvote functionality.
+ *
+ * @param isOwner - A boolean indicating whether the current user is the owner of the thread, which determines if update/delete actions are available.
+ * @param thread - The thread object containing details to be displayed on the card, including title, body, votes, and comments.
+ * @param onUpdate - Optional callback function to handle thread updates, triggered when the update action is selected.
+ * @param onDelete - Optional callback function to handle thread deletion, triggered when the delete action is selected.
+ * @param onClick - Optional callback function to handle card clicks, allowing for navigation or other interactions.
+ * @returns A styled card component that displays thread details and provides interactive actions for the author and users.
+ */
 const ThreadCard: React.FC<ThreadCardProps> = ({
     isOwner,
     thread,
