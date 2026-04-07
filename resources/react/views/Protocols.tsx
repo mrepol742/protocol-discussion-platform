@@ -63,6 +63,19 @@ const Home = () => {
     }
 
     useEffect(() => {
+        const handleResize = () => {
+            console.log(window.innerWidth)
+            if (window.innerWidth <= 550 && mode === 'list') {
+                toggleMode()
+            }
+        }
+
+        handleResize()
+        window.addEventListener('resize', handleResize)
+        return () => window.removeEventListener('resize', handleResize)
+    }, [mode, toggleMode])
+
+    useEffect(() => {
         const params = new URLSearchParams(location.search)
 
         const q = params.get('q') || ''
@@ -140,7 +153,7 @@ const Home = () => {
 
                         <button
                             onClick={toggleMode}
-                            className="px-4 py-2 ml-2 bg-gray-200 text-gray-700 rounded-md shadow hover:bg-gray-300 transition"
+                            className="hidden md:inline-block px-4 py-2 ml-2 bg-gray-200 text-gray-700 rounded-md shadow hover:bg-gray-300 transition"
                         >
                             {mode === 'list' ? (
                                 <FontAwesomeIcon icon={faGripVertical} />

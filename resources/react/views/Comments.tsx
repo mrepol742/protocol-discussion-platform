@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { createComment, getComments } from '../services/comments'
 import { getThreadInfo } from '../services/threads'
-import Pagination from '../components/shared/Pagination'
+import { castVote } from '../services/votes'
 import Loading from '../components/shared/Loading'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {
@@ -52,11 +52,11 @@ export default function Comments() {
         setNewComment(e.target.value)
     }
 
-    const handleCommentSubmit = () => {
+    const handleCommentSubmit = async () => {
         if (!newComment.trim()) return
-        createComment(threadId ? threadId : '', newComment)
+        await createComment(threadId ?? '', newComment)
         setNewComment('')
-        fetchComments()
+        await fetchComments()
         scrollToBottom()
     }
 
@@ -67,6 +67,15 @@ export default function Comments() {
     useEffect(() => {
         scrollToBottom()
     }, [comments])
+
+    const voteComment = async (commentId: string, isUpvote: boolean) => {
+        try {
+            await castVote(Number(commentId), 'comment', isUpvote)
+            await fetchComments()
+        } catch (err) {
+            console.error('Error voting:', err)
+        }
+    }
 
     if (loading) return <Loading />
 
@@ -96,8 +105,9 @@ export default function Comments() {
                     icon={faChevronLeft}
                     className="text-gray-600 hover:text-gray-800 transition"
                 />
-                <span className="ms-2 ">Back</span>
+                <span className="ms-2">Back</span>
             </button>
+
             <h1 className="text-4xl font-bold">{thread.title}</h1>
             <p className="text-lg text-gray-600 mb-2">{thread.body}</p>
 
@@ -112,20 +122,52 @@ export default function Comments() {
                     )}
 
                     <ul className="space-y-3">
-                        {comments.map((comment) => (
-                            <li
-                                key={comment.id}
-                                className="border-l-4 border-gray-500 pl-3 py-2 bg-gray-50 rounded"
-                            >
-                                <p className="text-gray-800">{comment.body}</p>
-                                <span className="text-sm text-gray-500">
-                                    — {user?.id === comment.user.id ? 'You' : comment.user.name}
-                                </span>
-                                <small className="text-sm text-gray-400 block">
-                                    {new Date(comment.created_at).toLocaleString()}
-                                </small>
-                            </li>
-                        ))}
+                        {comments.map((comment) => {
+                            const votes = Array.isArray(comment.votes) ? comment.votes : []
+                            const votesCount = votes.length ? votes.reduce((sum: number, v: any) => sum + (v.is_upvote ? 1 : -1), 0) : 0
+                            const myVote = votes.find((v: any) => v.user_id === user?.id)?.is_upvote
+
+                            return (
+                                <li key={comment.id} className="py-2 bg-gray-50 rounded flex">
+                                    <div className="flex flex-col items-center mr-4 select-none">
+                                        <button
+                                            onClick={() => voteComment(comment.id, true)}
+                                            className={`text-xl transition ${
+                                                myVote === 1
+                                                    ? 'text-green-500'
+                                                    : 'text-gray-400 hover:text-green-500'
+                                            }`}
+                                        >
+                                            ▲
+                                        </button>
+                                        <span className="font-semibold">{votesCount}</span>
+                                        <button
+                                            onClick={() => voteComment(comment.id, false)}
+                                            className={`text-xl transition ${
+                                                myVote === 0
+                                                    ? 'text-red-500'
+                                                    : 'text-gray-400 hover:text-red-500'
+                                            }`}
+                                        >
+                                            ▼
+                                        </button>
+                                    </div>
+
+                                    <div>
+                                        <p className="text-gray-800">{comment.body}</p>
+                                        <span className="text-sm text-gray-500">
+                                            —{' '}
+                                            {user?.id === comment.user.id
+                                                ? 'You'
+                                                : comment.user.name}
+                                        </span>
+                                        <small className="text-sm text-gray-400 block">
+                                            {new Date(comment.created_at).toLocaleString()}
+                                        </small>
+                                    </div>
+                                </li>
+                            )
+                        })}
                     </ul>
 
                     <div ref={commentsEndRef} />

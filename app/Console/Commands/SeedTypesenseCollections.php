@@ -25,62 +25,64 @@ class SeedTypesenseCollections extends Command
     /**
      * Execute the console command.
      */
-     public function handle()
-        {
-            $client = new Client([
-                'api_key' => env('TYPESENSE_API_KEY'),
-                'nodes' => [
-                    [
-                        'host' => env('TYPESENSE_HOST'),
-                        'port' => env('TYPESENSE_PORT'),
-                        'protocol' => env('TYPESENSE_PROTOCOL'),
-                    ],
+    public function handle()
+    {
+        $client = new Client([
+            'api_key' => env('TYPESENSE_API_KEY'),
+            'nodes' => [
+                [
+                    'host' => env('TYPESENSE_HOST'),
+                    'port' => env('TYPESENSE_PORT'),
+                    'protocol' => env('TYPESENSE_PROTOCOL'),
+                ],
+            ],
+        ]);
+
+        // Seed protocols collection
+        try {
+            $client->collections->create([
+                'name' => 'protocols',
+                'fields' => [
+                    ['name' => 'id', 'type' => 'string'],
+                    ['name' => 'title', 'type' => 'string'],
+                    ['name' => 'content', 'type' => 'string'],
+                    ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
+                    ['name' => 'reviews_count', 'type' => 'int32'],
+                    ['name' => 'average_rating', 'type' => 'float'],
+                    ['name' => 'votes_count', 'type' => 'int32'],
+                    ['name' => 'author_id', 'type' => 'string'],
+                    ['name' => 'author_name', 'type' => 'string'],
+                    ['name' => 'created_at', 'type' => 'int64'],
+                    ['name' => 'updated_at', 'type' => 'int64'],
                 ],
             ]);
-
-            // Seed protocols collection
-            try {
-                $client->collections->create([
-                    'name' => 'protocols',
-                    'fields' => [
-                        ['name' => 'id', 'type' => 'string'],
-                        ['name' => 'title', 'type' => 'string'],
-                        ['name' => 'content', 'type' => 'string'],
-                        ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
-                        ['name' => 'reviews_count', 'type' => 'int32'],
-                        ['name' => 'average_rating', 'type' => 'float'],
-                        ['name' => 'votes_count', 'type' => 'int32'],
-                        ['name' => 'author_id', 'type' => 'string'],
-                        ['name' => 'author_name', 'type' => 'string'],
-                        ['name' => 'created_at', 'type' => 'int64'],
-                        ['name' => 'updated_at', 'type' => 'int64'],
-                    ],
-                ]);
-                $this->info('Collection "protocols" created.');
-            } catch (ObjectAlreadyExists $e) {
-                $this->info('Collection "protocols" already exists.');
-            }
-
-            // Seed threads collection
-            try {
-                $client->collections->create([
-                    'name' => 'threads',
-                    'fields' => [
-                        ['name' => 'id', 'type' => 'string'],
-                        ['name' => 'title', 'type' => 'string'],
-                        ['name' => 'body', 'type' => 'string'],
-                        ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
-                        ['name' => 'votes_count', 'type' => 'int32'],
-                        ['name' => 'protocol_id', 'type' => 'string'],
-                        ['name' => 'created_at', 'type' => 'int64'],
-                        ['name' => 'updated_at', 'type' => 'int64'],
-                    ],
-                ]);
-                $this->info('Collection "threads" created.');
-            } catch (ObjectAlreadyExists $e) {
-                $this->info('Collection "threads" already exists.');
-            }
-
-            $this->info('Typesense collections seeding completed.');
+            $this->info('Collection "protocols" created.');
+        } catch (ObjectAlreadyExists $e) {
+            $this->info('Collection "protocols" already exists.');
         }
+
+        // Seed threads collection
+        try {
+            $client->collections->create([
+                'name' => 'threads',
+                'enable_nested_fields' => true,
+                'fields' => [
+                    ['name' => 'id', 'type' => 'string'],
+                    ['name' => 'title', 'type' => 'string'],
+                    ['name' => 'body', 'type' => 'string'],
+                    ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
+                    ['name' => 'votes_count', 'type' => 'int32'],
+                    ['name' => 'votes', 'type' => 'object[]'],
+                    ['name' => 'protocol_id', 'type' => 'string'],
+                    ['name' => 'created_at', 'type' => 'int64'],
+                    ['name' => 'updated_at', 'type' => 'int64'],
+                ],
+            ]);
+            $this->info('Collection "threads" created.');
+        } catch (ObjectAlreadyExists $e) {
+            $this->info('Collection "threads" already exists.');
+        }
+
+        $this->info('Typesense collections seeding completed.');
+    }
 }

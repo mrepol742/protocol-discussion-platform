@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useState } from 'react'
 import { castVote } from '../../services/votes'
 import { toast } from 'react-toastify'
+import { useUser } from '../../context/UserContext'
+import { useNavigate } from 'react-router-dom'
 
 interface Comment {
     id: string
@@ -15,6 +17,7 @@ interface Thread {
     title: string
     body: string
     votes_count?: number
+    votes: { user_id: string; is_upvote: boolean }[]
     comments?: Comment[]
 }
 
@@ -33,67 +36,22 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
     onUpdate,
     onDelete,
 }) => {
-    // user's current vote on this thread: null, 'upvote' or 'downvote'
-    const [userVote, setUserVote] = useState<'upvote' | 'downvote' | null>(null)
-    const [votesCount, setVotesCount] = useState(thread.votes_count ?? 0)
     const [dropdownOpen, setDropdownOpen] = useState(false)
+    const { user } = useUser()
+    const navigate = useNavigate()
+    const votes = Array.isArray(thread.votes) ? thread.votes : []
+    const myVote = votes.find((vote) => Number(vote.user_id) === Number(user?.id))?.is_upvote
+    const votesCount = votes.length
+        ? votes.reduce((sum: number, v: any) => sum + (v.is_upvote ? 1 : -1), 0)
+        : 0
 
-    const handleVote = async (isUpvote: boolean) => {
-        let delta = 0
-
-        if (userVote === 'upvote' && isUpvote) {
-            // Remove upvote
-            delta = -1
-            setUserVote(null)
-        } else if (userVote === 'downvote' && !isUpvote) {
-            // Remove downvote
-            delta = 1
-            setUserVote(null)
-        } else if (userVote === 'upvote' && !isUpvote) {
-            // Switch up -> down
-            delta = -2
-            setUserVote('downvote')
-        } else if (userVote === 'downvote' && isUpvote) {
-            // Switch down -> up
-            delta = 2
-            setUserVote('upvote')
-        } else if (userVote === null) {
-            // First vote
-            delta = isUpvote ? 1 : -1
-            setUserVote(isUpvote ? 'upvote' : 'downvote')
-        }
-
-        setVotesCount((prev) => prev + delta)
-
+    const voteThread = async (threadId: string, isUpvote: boolean) => {
         try {
-            const response = castVote(Number(thread.id), 'thread', isUpvote)
-            toast.promise(response, {
-                pending: 'Casting vote...',
-                success: 'Vote cast successfully',
-                error: {
-                    render({ data }) {
-                        const error = data as Error
-                        return (
-                            error.response?.data?.message ||
-                            error.response?.data?.error ||
-                            'Failed to cast vote'
-                        )
-                    },
-                },
-            })
+            await castVote(Number(threadId), 'thread', isUpvote)
+            navigate(0) // Refresh the page to update the vote count and myVote status
         } catch (err) {
-            console.error('Vote failed', err)
+            console.error('Error voting:', err)
         }
-    }
-
-    const handleUpvote = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        handleVote(true)
-    }
-
-    const handleDownvote = (e: React.MouseEvent) => {
-        e.stopPropagation()
-        handleVote(false)
     }
 
     const toggleDropdown = (e: React.MouseEvent) => {
@@ -102,37 +60,34 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
     }
 
     return (
-        <div
-            className="border rounded-lg p-4 relative hover:shadow-lg transition-shadow cursor-pointer flex"
-            onClick={onClick}
-        >
-            {/* Votes */}
+        <div className="border rounded-lg p-4 relative hover:shadow-lg transition-shadow cursor-pointer flex">
             <div className="flex flex-col items-center mr-4 select-none">
                 <button
-                    onClick={handleUpvote}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        voteThread(thread.id, true)
+                    }}
                     className={`text-xl transition ${
-                        userVote === 'upvote'
-                            ? 'text-green-500'
-                            : 'text-gray-400 hover:text-green-500'
+                        myVote ? 'text-green-500' : 'text-gray-400 hover:text-green-500'
                     }`}
                 >
                     ▲
                 </button>
                 <span className="font-semibold">{votesCount}</span>
                 <button
-                    onClick={handleDownvote}
+                    onClick={(e) => {
+                        e.preventDefault()
+                        voteThread(thread.id, false)
+                    }}
                     className={`text-xl transition ${
-                        userVote === 'downvote'
-                            ? 'text-red-500'
-                            : 'text-gray-400 hover:text-red-500'
+                        !myVote ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
                     }`}
                 >
                     ▼
                 </button>
             </div>
 
-            {/* Thread content */}
-            <div className="flex-1">
+            <div className="flex-1" onClick={onClick}>
                 <div className="flex justify-between items-start">
                     <h3 className="font-semibold text-gray-800 text-lg">{thread.title}</h3>
 

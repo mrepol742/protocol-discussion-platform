@@ -23,6 +23,17 @@ class Thread extends Model
             'body' => $this->body,
             'tags' => $this->protocol?->tags ?? [],
             'votes_count' => (int) $this->votes_count,
+            'votes' => $this->votes()
+                ->get()
+                ->map(function (Vote $vote) {
+                    return [
+                        'user_id' => (string) $vote->user_id,
+                        'votable_id' => (string) $vote->votable_id,
+                        'votable_type' => $vote->votable_type,
+                        'is_upvote' => (bool) $vote->is_upvote,
+                    ];
+                })
+                ->toArray(),
             'protocol_id' => (string) $this->protocol_id,
             'created_at' => strtotime($this->created_at),
             'updated_at' => strtotime($this->updated_at),

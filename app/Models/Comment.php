@@ -12,7 +12,7 @@ class Comment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['body', 'thread_id', 'user_id', 'parent_id'];
+    protected $fillable = ['body', 'thread_id', 'user_id', 'parent_id', 'votes_count'];
 
     /**
      * The attributes that are mass assignable.

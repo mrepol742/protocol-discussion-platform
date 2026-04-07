@@ -16,7 +16,7 @@ class VoteController extends Controller
      * @param Request $request
      * @return Vote
      */
-    public function vote(Request $request): Vote
+    public function vote(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'votable_type' => 'required|in:thread,comment',
@@ -33,16 +33,38 @@ class VoteController extends Controller
             );
         }
 
-        $vote = Vote::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'votable_id' => $request->votable_id,
-                'votable_type' => $request->votable_type,
-            ],
-            [
-                'is_upvote' => $request->is_upvote,
-            ],
-        );
+        // Check if user has already voted
+        $existingVote = Vote::where('user_id', auth()->id())
+            ->where('votable_id', $request->votable_id)
+            ->where('votable_type', $request->votable_type)
+            ->first();
+
+        if ($existingVote) {
+            // If vote direction is the same, return error
+            if ($existingVote->is_upvote == $request->is_upvote) {
+                return response()->json(
+                    [
+                        'error' =>
+                            'You have already ' .
+                            ($request->is_upvote ? 'upvoted' : 'downvoted') .
+                            ' this item.',
+                    ],
+                    400,
+                );
+            }
+
+            // If vote direction is different, update the vote
+            $existingVote->update(['is_upvote' => $request->is_upvote]);
+            return $existingVote;
+        }
+
+        // Create new vote
+        $vote = Vote::create([
+            'user_id' => auth()->id(),
+            'votable_id' => $request->votable_id,
+            'votable_type' => $request->votable_type,
+            'is_upvote' => $request->is_upvote,
+        ]);
 
         return $vote;
     }

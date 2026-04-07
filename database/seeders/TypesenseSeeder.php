@@ -49,12 +49,14 @@ class TypesenseSeeder extends Seeder
         try {
             $client->collections->create([
                 'name' => 'threads',
+                'enable_nested_fields' => true,
                 'fields' => [
                     ['name' => 'id', 'type' => 'string'],
                     ['name' => 'title', 'type' => 'string'],
                     ['name' => 'body', 'type' => 'string'],
                     ['name' => 'tags', 'type' => 'string[]', 'facet' => true],
                     ['name' => 'votes_count', 'type' => 'int32'],
+                    ['name' => 'votes', 'type' => 'object[]'],
                     ['name' => 'protocol_id', 'type' => 'string'],
                     ['name' => 'created_at', 'type' => 'int64'],
                     ['name' => 'updated_at', 'type' => 'int64'],
