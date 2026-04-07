@@ -194,21 +194,23 @@ export default function Comments() {
                         <div ref={commentsEndRef} />
                     </div>
 
-                    <div className="rounded-xl flex flex-row items-end gap-2 p-2 border-t bg-white">
-                        <textarea
-                            className="flex-1 border rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
-                            rows={3}
-                            placeholder="Write a comment..."
-                            value={newComment}
-                            onChange={handleCommentChange}
-                        />
-                        <button
-                            className="flex-shrink-0 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-                            onClick={handleCommentSubmit}
-                        >
-                            <FontAwesomeIcon icon={faPaperPlane} className="mr-1" />
-                        </button>
-                    </div>
+                    {user && (
+                        <div className="rounded-xl flex flex-row items-end gap-2 p-2 border-t bg-white">
+                            <textarea
+                                className="flex-1 border rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
+                                rows={3}
+                                placeholder="Write a comment..."
+                                value={newComment}
+                                onChange={handleCommentChange}
+                            />
+                            <button
+                                className="flex-shrink-0 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+                                onClick={handleCommentSubmit}
+                            >
+                                <FontAwesomeIcon icon={faPaperPlane} className="mr-1" />
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </>
