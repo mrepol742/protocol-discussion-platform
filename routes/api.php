@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Support\Facades\RateLimiter;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\SessionController;
@@ -11,14 +9,6 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\VoteController;
-
-RateLimiter::for('api-auth-actions', function ($request) {
-    return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
-});
-
-RateLimiter::for('api-actions', function ($request) {
-    return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-});
 
 Route::group(['prefix' => 'auth'], function () {
     Route::middleware('throttle:api-auth-actions')->group(function () {

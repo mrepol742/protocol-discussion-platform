@@ -11,6 +11,8 @@ use App\Observers\ReviewObserver;
 use App\Observers\ThreadObserver;
 use App\Observers\VoteObserver;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,5 +41,13 @@ class AppServiceProvider extends ServiceProvider
             'comment' => Comment::class,
             'user' => User::class
         ]);
+
+        RateLimiter::for('api-auth-actions', function ($request) {
+            return Limit::perMinute(10)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('api-actions', function ($request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

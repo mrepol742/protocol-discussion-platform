@@ -99,10 +99,17 @@ jobs:
 
     - name: Wait for Typesense
       run: |
-        until curl -s http://localhost:8108/health; do
-        echo "Waiting for Typesense..."
+        for i in $(seq 1 60); do
+        if curl -sS http://localhost:8108/health | grep -q '"ok":true'; then
+        echo "Typesense is healthy"
+        exit 0
+        fi
         sleep 2
         done
+        echo "Typesense did not become healthy in time"
+        docker ps -a
+        docker logs $(docker ps -aq --filter ancestor=typesense/typesense:0.26.0.rc70) || true
+        exit 1
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
@@ -119,12 +126,7 @@ jobs:
         echo "DB_USERNAME=protocol_discussion_platform" >> .env
         echo "DB_PASSWORD=secret_password_of_root" >> .env
 
-        echo "SCOUT_DRIVER=${{ secrets.SCOUT_DRIVER }}" >> .env
-
-        # echo "TYPESENSE_HOST=${{ secrets.TYPESENSE_HOST }}" >> .env
-        # echo "TYPESENSE_PORT=${{ secrets.TYPESENSE_PORT }}" >> .env
-        # echo "TYPESENSE_PROTOCOL=${{ secrets.TYPESENSE_PROTOCOL }}" >> .env
-        # echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}" >> .env
+        echo "SCOUT_DRIVER=typesense" >> .env
 
         echo "TYPESENSE_HOST=localhost" >> .env
         echo "TYPESENSE_PORT=8108" >> .env

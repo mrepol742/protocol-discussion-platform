@@ -14,15 +14,16 @@ class TypesenseSeeder extends Seeder
     public function run()
     {
         $client = new Client([
-            'api_key' => env('TYPESENSE_API_KEY'),
-            'nodes' => [
-                [
-                    'host' => env('TYPESENSE_HOST'),
-                    'port' => env('TYPESENSE_PORT'),
-                    'protocol' => env('TYPESENSE_PROTOCOL'),
-                ],
-            ],
+            'api_key' => config('scout.typesense.client-settings.api_key'),
+            'nodes' => config('scout.typesense.client-settings.nodes'),
         ]);
+
+        try {
+            $client->collections['protocols']->delete();
+            $client->collections['threads']->delete();
+        } catch (\Exception $e) {
+            // ignore if not found
+        }
 
         // Protocols collection
         try {
