@@ -5,6 +5,8 @@ import Input from '../../components/shared/Input'
 import cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
 import { login } from '../../services/auth'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
 export default function Login() {
     const [form, setForm] = useState({
@@ -12,6 +14,7 @@ export default function Login() {
         email: '',
         password: '',
     })
+    const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const formField = useRef<HTMLFormElement>(null)
     const navigate = useNavigate()
@@ -113,14 +116,25 @@ export default function Login() {
                             <label htmlFor="password" className="block text-gray-700 mb-2">
                                 Password
                             </label>
-                            <Input
-                                name="password"
-                                type="password"
-                                value={form.password}
-                                placeholder="********"
-                                handleChange={handleChange}
-                                required
-                            />
+                            <div className="relative">
+                                <Input
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={form.password}
+                                    placeholder="********"
+                                    handleChange={handleChange}
+                                    required
+                                />
+
+                                {form.password.length > 0 && (
+                                    <span
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <button

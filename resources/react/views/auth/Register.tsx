@@ -3,6 +3,8 @@ import Brand from '../../components/shared/Brand'
 import { toast } from 'react-toastify'
 import Input from '../../components/shared/Input'
 import { register } from '../../services/auth'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 
 export default function Register() {
     const [form, setForm] = useState({
@@ -12,6 +14,8 @@ export default function Register() {
         password: '',
         password_confirmation: '',
     })
+    const [showPassword, setShowPassword] = useState(false)
+    const [showConfirm, setShowConfirm] = useState(false)
     const [loading, setLoading] = useState(false)
     const formField = useRef<HTMLFormElement>(null)
 
@@ -124,14 +128,25 @@ export default function Register() {
                             <label htmlFor="password" className="block text-gray-700 mb-2">
                                 Password
                             </label>
-                            <Input
-                                name="password"
-                                type="new-password"
-                                value={form.password}
-                                placeholder="********"
-                                handleChange={handleChange}
-                                required
-                            />
+                            <div className="relative">
+                                <Input
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={form.password}
+                                    placeholder="********"
+                                    handleChange={handleChange}
+                                    required
+                                />
+
+                                {form.password.length > 0 && (
+                                    <span
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                    >
+                                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <div className="mb-4">
                             <label
@@ -140,14 +155,25 @@ export default function Register() {
                             >
                                 Confirm Password
                             </label>
-                            <Input
-                                name="password_confirmation"
-                                type="new-password"
-                                value={form.password_confirmation}
-                                placeholder="********"
-                                handleChange={handleChange}
-                                required
-                            />
+                            <div className="relative">
+                                <Input
+                                    name="password_confirmation"
+                                    type={showConfirm ? 'text' : 'password'}
+                                    value={form.password_confirmation}
+                                    placeholder="********"
+                                    handleChange={handleChange}
+                                    required
+                                />
+
+                                {form.password_confirmation.length > 0 && (
+                                    <span
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                                        onClick={() => setShowConfirm(!showConfirm)}
+                                    >
+                                        <FontAwesomeIcon icon={showConfirm ? faEyeSlash : faEye} />
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <button
                             type="submit"
