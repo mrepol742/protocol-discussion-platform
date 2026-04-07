@@ -51,6 +51,10 @@ class CommentController extends Controller
     {
         return Comment::where('thread_id', $id)
             ->with(['user', 'replies', 'votes'])
+            ->withCount([
+                'votes as upvotes_count' => fn($q) => $q->where('is_upvote', 1),
+            ])
+            ->orderByDesc('upvotes_count')
             ->get();
     }
 

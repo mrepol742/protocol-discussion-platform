@@ -111,7 +111,6 @@ export default function Threads() {
 
     useEffect(() => {
         const handleResize = () => {
-            console.log(window.innerWidth)
             if (window.innerWidth <= 550 && mode === 'list') {
                 toggleMode()
             }

@@ -28,14 +28,8 @@ class SeedTypesenseCollections extends Command
     public function handle()
     {
         $client = new Client([
-            'api_key' => env('TYPESENSE_API_KEY'),
-            'nodes' => [
-                [
-                    'host' => env('TYPESENSE_HOST'),
-                    'port' => env('TYPESENSE_PORT'),
-                    'protocol' => env('TYPESENSE_PROTOCOL'),
-                ],
-            ],
+            'api_key' => config('scout.typesense.client-settings.api_key'),
+            'nodes' => config('scout.typesense.client-settings.nodes'),
         ]);
 
         // Seed protocols collection
