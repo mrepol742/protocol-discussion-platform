@@ -94,6 +94,15 @@ DB_CONNECTION=sqlite
 DB_DATABASE=:memory:
 ```
 
+## Production Sentry
+To enable Sentry error tracking in production, set the following in your `.env`:
+
+```env
+APP_ENV=production
+SENTRY_LARAVEL_DSN=
+```
+To find your Sentry DSN (Data Source Name) URL, navigate to Sentry > Project Settings > SDK Setup > Client Keys (DSN).
+
 ---
 
 ### Run Tests

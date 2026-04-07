@@ -74,13 +74,14 @@ const ThreadCard: React.FC<ThreadCardProps> = ({
                     ▲
                 </button>
                 <span className="font-semibold">{votesCount}</span>
+                {/* the myVote == false is to prevent the button from being styled as a downvote when myVote is undefined */}
                 <button
                     onClick={(e) => {
                         e.preventDefault()
                         voteThread(thread.id, false)
                     }}
                     className={`text-xl transition ${
-                        !myVote ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
+                        myVote === false ? 'text-red-500' : 'text-gray-400 hover:text-red-500'
                     }`}
                 >
                     ▼

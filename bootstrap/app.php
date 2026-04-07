@@ -4,6 +4,7 @@ use App\Http\Middleware\OptionalSanctumAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Sentry\Laravel\Integration;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -18,6 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
+        if (config('app.env') === 'production') {
+            Integration::handles($exceptions);
+        }
+
         // This simplify laravel exception logging by only logging relevant frames
         $exceptions->report(function (Throwable $e) {
             $trace = collect($e->getTrace())
