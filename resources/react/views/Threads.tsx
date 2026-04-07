@@ -11,6 +11,7 @@ import {
     faExclamationTriangle,
     faGripVertical,
     faList,
+    faMessage,
     faPencil,
     faPlus,
 } from '@fortawesome/free-solid-svg-icons'
@@ -24,6 +25,8 @@ import Search from '../components/shared/Search'
 import type { SearchThread } from '../types/search'
 import { Rating } from 'react-simple-star-rating'
 import DeleteModal from '../components/modal/DeleteModal'
+import ReviewSummaryCard from '../components/card/ReviewSummaryCard'
+import ReviewCard from '../components/card/ReviewCard'
 
 export default function Threads() {
     const [mode, setMode] = useState('list')
@@ -31,6 +34,7 @@ export default function Threads() {
     const [protocol, setProtocol] = useState<any>(null)
     const [threads, setThreads] = useState<any[]>([])
     const [reviews, setReviews] = useState<any[]>([])
+    const [reviewSummary, setReviewSummary] = useState('')
     const [loading, setLoading] = useState(false)
     const [threadCurrentPage, setThreadCurrentPage] = useState(1)
     const [threadLastPage, setThreadLastPage] = useState(1)
@@ -87,6 +91,7 @@ export default function Threads() {
         )) as Response
 
         setReviews(reviewsResponse.data.data)
+        setReviewSummary(reviewsResponse.data?.summary || '')
         setReviewCurrentPage(reviewsResponse.data.current_page)
         setReviewLastPage(reviewsResponse.data.last_page)
     }
@@ -372,36 +377,11 @@ export default function Threads() {
                     </div>
                 )}
 
+                <ReviewSummaryCard reviewSummary={reviewSummary} />
+
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
                     {reviews.map((review) => (
-                        <div
-                            key={review.id}
-                            className="hover:border-l-yellow-500 border-l-3 border-gray-500 rounded ps-2 transition"
-                        >
-                            {review.user_id === user?.id && (
-                                <div className="mb-1 bg-gray-600 w-min whitespace-nowrap text-white rounded text-xs px-2">
-                                    Your review
-                                </div>
-                            )}
-                            <h3 className="font-semibold">{review.user.name}</h3>
-                            <p className="text-gray-600">{review.feedback}</p>
-
-                            <div className="mt-1">
-                                <Rating
-                                    initialValue={review.rating}
-                                    allowHover={false}
-                                    disableFillHover
-                                    readonly={true}
-                                    allowFraction
-                                    SVGstyle={{
-                                        width: '16px',
-                                        height: '16px',
-                                        display: 'inline-block',
-                                    }}
-                                    fillStyle={{ display: 'inline-block' }}
-                                />
-                            </div>
-                        </div>
+                        <ReviewCard key={review.id} review={review} user={user} />
                     ))}
                 </div>
 

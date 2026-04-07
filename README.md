@@ -34,6 +34,12 @@ TYPESENSE_API_KEY=your-typesense-api-key
 TYPESENSE_COLLECTION_PREFIX=
 ```
 
+For AI features, set up GROQ:
+
+```env
+GROQ_API_KEY=your-groq-api-key
+```
+
 ---
 
 ### 3. Generate App Key
