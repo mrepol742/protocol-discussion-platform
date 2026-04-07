@@ -65,13 +65,13 @@ export default function ReviewModal({
         const response = submitReview(formData.protocol_id, formData.feedback, formData.rating)
 
         toast.promise(response, {
-            pending: 'Creating review...',
-            success: 'Review created successfully',
+            pending: 'Submitting review...',
+            success: 'Review submitted successfully',
             error: {
                 render({ data }) {
                     const error = data as Error
                     return (
-                        error.response.data.message || error.response.data.error || 'Login failed'
+                        error.response.data.message || error.response.data.error || 'Failed to submit review'
                     )
                 },
             },
