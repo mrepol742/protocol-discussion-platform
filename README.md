@@ -24,6 +24,16 @@ Update the following in `.env`:
 * Database credentials
 * Typesense configuration
 
+```sh
+SCOUT_DRIVER=typesense
+
+TYPESENSE_HOST=localhost
+TYPESENSE_PORT=8108
+TYPESENSE_PROTOCOL=http
+TYPESENSE_API_KEY=your-typesense-api-key
+TYPESENSE_COLLECTION_PREFIX=
+```
+
 ---
 
 ### 3. Generate App Key
@@ -110,6 +120,12 @@ php artisan app:seed-typesense-collections
 ```sh
 php artisan optimize
 ```
+
+---
+
+## API Documentation
+
+For full API details, see [API Docs](./docs/api.md)
 
 ---
 

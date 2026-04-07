@@ -37,7 +37,7 @@ class CommentController extends Controller
             'thread_id' => $request->thread_id,
             'user_id' => auth()->id(),
             // temp solution for parent_id, will be used for nested comments in the future
-            'parent_id' => $request->thread_id,
+            'parent_id' => $request->parent_id ?? null,
         ]);
     }
 
@@ -51,7 +51,6 @@ class CommentController extends Controller
     {
         return Comment::where('thread_id', $id)
             ->with(['user', 'replies', 'votes'])
-            ->latest()
             ->get();
     }
 

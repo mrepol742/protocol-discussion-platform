@@ -68,6 +68,17 @@ jobs:
       with:
         node-version: 22
 
+    - name: Create Typesense data folder
+      run: mkdir -p ${{ github.workspace }}/typesense-data
+
+    - name: Start Typesense
+      run: |
+        docker run -d -p 8108:8108 \
+          -v ${{ github.workspace }}/typesense-data:/data \
+          -e TYPESENSE_API_KEY=very_secured_secret_api_key \
+          typesense/typesense:0.26.0.rc70 \
+          --data-dir /data --enable-cors
+
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
 
@@ -79,6 +90,19 @@ jobs:
         key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
           ${{ runner.os }}-php-
+
+    - name: Wait for MySQL
+      run: |
+        until mysql -h 127.0.0.1 -u protocol_discussion_platform -psecret_password_of_root -e 'select 1'; do
+          sleep 1
+        done
+
+    - name: Wait for Typesense
+      run: |
+        until curl -s http://localhost:8108/health; do
+        echo "Waiting for Typesense..."
+        sleep 2
+        done
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
@@ -97,21 +121,20 @@ jobs:
 
         echo "SCOUT_DRIVER=${{ secrets.SCOUT_DRIVER }}" >> .env
 
-        echo "TYPESENSE_HOST=${{ secrets.TYPESENSE_HOST }}" >> .env
-        echo "TYPESENSE_PORT=${{ secrets.TYPESENSE_PORT }}" >> .env
-        echo "TYPESENSE_PROTOCOL=${{ secrets.TYPESENSE_PROTOCOL }}" >> .env
-        echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}" >> .env
+        # echo "TYPESENSE_HOST=${{ secrets.TYPESENSE_HOST }}" >> .env
+        # echo "TYPESENSE_PORT=${{ secrets.TYPESENSE_PORT }}" >> .env
+        # echo "TYPESENSE_PROTOCOL=${{ secrets.TYPESENSE_PROTOCOL }}" >> .env
+        # echo "TYPESENSE_API_KEY=${{ secrets.TYPESENSE_API_KEY }}" >> .env
+
+        echo "TYPESENSE_HOST=localhost" >> .env
+        echo "TYPESENSE_PORT=8108" >> .env
+        echo "TYPESENSE_PROTOCOL=http" >> .env
+        echo "TYPESENSE_API_KEY=very_secured_secret_api_key" >> .env
 
         php artisan key:generate
 
-    - name: Wait for MySQL
-      run: |
-        until mysql -h 127.0.0.1 -u protocol_discussion_platform -psecret_password_of_root -e 'select 1'; do
-          sleep 1
-        done
-
     - name: Run migrations
-      run: php artisan migrate --force
+      run: php artisan migrate:fresh --seed --force
 
     - name: Install dependencies for client
       run: npm ci

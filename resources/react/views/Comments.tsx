@@ -11,6 +11,7 @@ import {
     faPaperPlane,
 } from '@fortawesome/free-solid-svg-icons'
 import type { Response, ResponseNoPagination } from '../types/response'
+import { useUser } from '../context/UserContext'
 
 export default function Comments() {
     const { threadId } = useParams<{ threadId: string }>()
@@ -20,6 +21,7 @@ export default function Comments() {
     const [newComment, setNewComment] = useState('')
     const commentsEndRef = useRef<HTMLDivElement>(null)
     const navigate = useNavigate()
+    const { user } = useUser()
 
     const fetchComments = async () => {
         const commentsResponse = (await getComments(Number(threadId))) as ResponseNoPagination
@@ -116,7 +118,9 @@ export default function Comments() {
                                 className="border-l-4 border-gray-500 pl-3 py-2 bg-gray-50 rounded"
                             >
                                 <p className="text-gray-800">{comment.body}</p>
-                                <span className="text-sm text-gray-500">— {comment.user.name}</span>
+                                <span className="text-sm text-gray-500">
+                                    — {user?.id === comment.user.id ? 'You' : comment.user.name}
+                                </span>
                                 <small className="text-sm text-gray-400 block">
                                     {new Date(comment.created_at).toLocaleString()}
                                 </small>
