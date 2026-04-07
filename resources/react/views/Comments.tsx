@@ -12,6 +12,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import type { Response, ResponseNoPagination } from '../types/response'
 import { useUser } from '../context/UserContext'
+import CommentCard from '../components/card/CommentCard'
+import ModalContainer from '../components/shared/ModalContainer'
+import DeleteModal from '../components/modal/DeleteModal'
+import CommentModal from '../components/modal/CommentModal'
 
 export default function Comments() {
     const { threadId } = useParams<{ threadId: string }>()
@@ -19,6 +23,12 @@ export default function Comments() {
     const [comments, setComments] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
     const [newComment, setNewComment] = useState('')
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+    const [selectedComment, setSelectedComment] = useState({
+        id: null,
+        title: '', // cast as feedback but will keep as title for compatibility with delete modal
+    })
     const commentsEndRef = useRef<HTMLDivElement>(null)
     const navigate = useNavigate()
     const { user } = useUser()
@@ -96,99 +106,111 @@ export default function Comments() {
         )
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <button
-                onClick={() => navigate(`/protocols/${thread.protocol_id}`)}
-                className="p-2 rounded-full hover:bg-gray-200 transition"
-            >
-                <FontAwesomeIcon
-                    icon={faChevronLeft}
-                    className="text-gray-600 hover:text-gray-800 transition"
+        <>
+            <ModalContainer isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                <CommentModal
+                    form={selectedComment}
+                    isOpen={isModalOpen}
+                    setIsOpen={setIsModalOpen}
                 />
-                <span className="ms-2">Back</span>
-            </button>
+            </ModalContainer>
 
-            <h1 className="text-4xl font-bold">{thread.title}</h1>
-            <p className="text-lg text-gray-600 mb-2">{thread.body}</p>
+            <ModalContainer isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
+                <DeleteModal
+                    type="comment"
+                    item={selectedComment}
+                    isOpen={deleteModalOpen}
+                    setIsOpen={setDeleteModalOpen}
+                />
+            </ModalContainer>
 
-            <div className="flex flex-col flex-1 min-h-0 border rounded-lg shadow-sm bg-white">
-                <h2 className="text-xl font-semibold p-4 border-b">
-                    Comments ({thread.comments_count || comments.length})
-                </h2>
-
-                <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2">
-                    {comments.length === 0 && (
-                        <p className="text-gray-500">No comments yet. Be the first to comment!</p>
-                    )}
-
-                    <ul className="space-y-3">
-                        {comments.map((comment) => {
-                            const votes = Array.isArray(comment.votes) ? comment.votes : []
-                            const votesCount = votes.length ? votes.reduce((sum: number, v: any) => sum + (v.is_upvote ? 1 : -1), 0) : 0
-                            const myVote = votes.find((v: any) => v.user_id === user?.id)?.is_upvote
-
-                            return (
-                                <li key={comment.id} className="py-2 bg-gray-50 rounded flex">
-                                    <div className="flex flex-col items-center mr-4 select-none">
-                                        <button
-                                            onClick={() => voteComment(comment.id, true)}
-                                            className={`text-xl transition ${
-                                                myVote === 1
-                                                    ? 'text-green-500'
-                                                    : 'text-gray-400 hover:text-green-500'
-                                            }`}
-                                        >
-                                            ▲
-                                        </button>
-                                        <span className="font-semibold">{votesCount}</span>
-                                        <button
-                                            onClick={() => voteComment(comment.id, false)}
-                                            className={`text-xl transition ${
-                                                myVote === 0
-                                                    ? 'text-red-500'
-                                                    : 'text-gray-400 hover:text-red-500'
-                                            }`}
-                                        >
-                                            ▼
-                                        </button>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-gray-800">{comment.body}</p>
-                                        <span className="text-sm text-gray-500">
-                                            —{' '}
-                                            {user?.id === comment.user.id
-                                                ? 'You'
-                                                : comment.user.name}
-                                        </span>
-                                        <small className="text-sm text-gray-400 block">
-                                            {new Date(comment.created_at).toLocaleString()}
-                                        </small>
-                                    </div>
-                                </li>
-                            )
-                        })}
-                    </ul>
-
-                    <div ref={commentsEndRef} />
-                </div>
-
-                <div className="rounded-xl flex flex-row items-end gap-2 p-2 border-t bg-white">
-                    <textarea
-                        className="flex-1 border rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        rows={3}
-                        placeholder="Write a comment..."
-                        value={newComment}
-                        onChange={handleCommentChange}
+            <div className="container mx-auto px-4 py-8">
+                <button
+                    onClick={() => navigate(`/protocols/${thread.protocol_id}`)}
+                    className="p-2 rounded-full hover:bg-gray-200 transition"
+                >
+                    <FontAwesomeIcon
+                        icon={faChevronLeft}
+                        className="text-gray-600 hover:text-gray-800 transition"
                     />
-                    <button
-                        className="flex-shrink-0 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-                        onClick={handleCommentSubmit}
-                    >
-                        <FontAwesomeIcon icon={faPaperPlane} className="mr-1" />
-                    </button>
+                    <span className="ms-2">Back</span>
+                </button>
+
+                <h1 className="text-4xl font-bold">{thread.title}</h1>
+                <p className="text-lg text-gray-600 mb-2">{thread.body}</p>
+
+                <div className="flex flex-col flex-1 min-h-0 border rounded-lg shadow-sm bg-white">
+                    <h2 className="text-xl font-semibold p-4 border-b">
+                        Comments ({thread.comments_count || comments.length})
+                    </h2>
+
+                    <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2">
+                        {comments.length === 0 && (
+                            <p className="text-gray-500">
+                                No comments yet. Be the first to comment!
+                            </p>
+                        )}
+
+                        <ul className="space-y-3">
+                            {comments.map((comment) => {
+                                const votes = Array.isArray(comment.votes) ? comment.votes : []
+                                const votesCount = votes.length
+                                    ? votes.reduce(
+                                          (sum: number, v: any) => sum + (v.is_upvote ? 1 : -1),
+                                          0,
+                                      )
+                                    : 0
+                                const myVote = votes.find(
+                                    (v: any) => v.user_id === user?.id,
+                                )?.is_upvote
+
+                                return (
+                                    <CommentCard
+                                        key={comment.id}
+                                        comment={comment}
+                                        myVote={myVote}
+                                        votesCount={votesCount}
+                                        voteComment={voteComment}
+                                        user={user}
+                                        onUpdate={(comment) => {
+                                            setSelectedComment({
+                                                id: comment.id,
+                                                title: comment.body,
+                                            })
+                                            setIsModalOpen(true)
+                                        }}
+                                        onDelete={(comment) => {
+                                            setSelectedComment({
+                                                id: comment.id,
+                                                title: comment.body.substring(0, 20) + '...',
+                                            })
+                                            setDeleteModalOpen(true)
+                                        }}
+                                    />
+                                )
+                            })}
+                        </ul>
+
+                        <div ref={commentsEndRef} />
+                    </div>
+
+                    <div className="rounded-xl flex flex-row items-end gap-2 p-2 border-t bg-white">
+                        <textarea
+                            className="flex-1 border rounded-xl p-2 resize-none focus:outline-none focus:ring-2 focus:ring-gray-400"
+                            rows={3}
+                            placeholder="Write a comment..."
+                            value={newComment}
+                            onChange={handleCommentChange}
+                        />
+                        <button
+                            className="flex-shrink-0 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition"
+                            onClick={handleCommentSubmit}
+                        >
+                            <FontAwesomeIcon icon={faPaperPlane} className="mr-1" />
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }

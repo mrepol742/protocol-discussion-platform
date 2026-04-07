@@ -7,6 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Response;
 
 class CommentController extends Controller
 {
@@ -66,6 +67,15 @@ class CommentController extends Controller
      */
     public function update(Request $request, Comment $comment): Comment
     {
+        if (!$this->checkOwnership($comment)) {
+            return response()->json(
+                [
+                    'error' => 'Deletion denied. You are not the owner of this protocol.',
+                ],
+                422,
+            );
+        }
+
         $validator = Validator::make($request->all(), [
             'body' => ['required', 'string', 'max:255', new NotBadWord()],
         ]);
@@ -92,9 +102,29 @@ class CommentController extends Controller
      * @param Comment $comment
      * @return Response
      */
-    public function destroy(Comment $comment): Request
+    public function destroy(Comment $comment): Response
     {
+        if (!$this->checkOwnership($comment)) {
+            return response()->json(
+                [
+                    'error' => 'Deletion denied. You are not the owner of this protocol.',
+                ],
+                422,
+            );
+        }
+
         $comment->delete();
         return response()->noContent();
+    }
+
+    /**
+     * Check if the authenticated user is the owner of the comment.
+     *
+     * @param Comment $comment
+     * @return bool
+     */
+    private function checkOwnership(Comment $comment): bool
+    {
+        return $comment->user_id === auth()->id();
     }
 }

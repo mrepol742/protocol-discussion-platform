@@ -41,17 +41,36 @@ export function createComment(threadId: string, body: string) {
 }
 
 /**
+ * Update an existing comment.
+ *
+ * @param commentId - The ID of the comment to be updated.
+ * @param body - The new content for the comment.
+ * @returns A promise that resolves with the response containing the updated comment data or rejects with an error.
+ */
+// cast title to body to recycle comment modal
+export function updateComment(commentId: number, title: string) {
+    return new Promise((resolve, reject) => {
+        axiosInstance
+            .put(`/comments/${commentId}`, { body: title })
+            .then((response) => {
+                resolve(response)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    })
+}
+
+/**
  * Delete a comment from a specific thread.
  *
- * @param protocolId - The ID of the protocol to which the thread belongs.
- * @param threadId - The ID of the thread from which the comment will be deleted.
  * @param commentId - The ID of the comment to be deleted.
  * @returns A promise that resolves with the response confirming the deletion or rejects with an error.
  */
-export function deleteComment(protocolId: string, threadId: string, commentId: string) {
+export function deleteComment(commentId: number) {
     return new Promise((resolve, reject) => {
         axiosInstance
-            .delete(`/protocols/${protocolId}/threads/${threadId}/comments/${commentId}`)
+            .delete(`/comments/${commentId}`)
             .then((response) => {
                 resolve(response)
             })

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { deleteProtocol } from '../../services/protocols'
 import { deleteThread } from '../../services/threads'
+import { deleteComment } from '../../services/comments'
 
 export default function DeleteModal({
     type,
@@ -11,7 +12,7 @@ export default function DeleteModal({
     isOpen,
     setIsOpen,
 }: {
-    type: 'protocol' | 'thread'
+    type: 'protocol' | 'thread' | 'comment'
     item: any
     isOpen: boolean
     setIsOpen: (open: boolean) => void
@@ -65,6 +66,8 @@ export default function DeleteModal({
                 return deleteProtocol
             case 'thread':
                 return deleteThread
+            case 'comment':
+                return deleteComment
             default:
                 throw new Error('Invalid type for deletion')
         }
