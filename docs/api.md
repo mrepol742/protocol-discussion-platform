@@ -1,5 +1,11 @@
 # API Documentation
 
+Use the links below to navigate to different sections:
+
+- [Project Documentation](index.md)
+- [Web Documentation](web.md)
+- [README](../README.md)
+
 ## Table of Contents
 
 - [Authentication](#authentication)
