@@ -2,6 +2,12 @@
 
 A content-first discussion platform where users can post structured protocols, create discussion threads, and engage through comments, reviews, and voting — with intelligent search and filtering powered by Typesense.
 
+Use the links below to navigate to different sections:
+
+- [Project Documentation](docs/index.md)
+- [API Documentation](docs/api.md)
+- [Web Documentation](docs/web.md)
+
 ---
 
 ## 🚀 Setup
@@ -21,8 +27,8 @@ cp .env.example .env
 
 Update the following in `.env`:
 
-* Database credentials
-* Typesense configuration
+- Database credentials
+- Typesense configuration
 
 ```sh
 SCOUT_DRIVER=typesense
@@ -101,12 +107,14 @@ DB_DATABASE=:memory:
 ```
 
 ## Production Sentry
+
 To enable Sentry error tracking in production, set the following in your `.env`:
 
 ```env
 APP_ENV=production
 SENTRY_LARAVEL_DSN=
 ```
+
 To find your Sentry DSN (Data Source Name) URL, navigate to Sentry > Project Settings > SDK Setup > Client Keys (DSN).
 
 ---
@@ -167,12 +175,11 @@ For full API details, see [API Docs](./docs/api.md)
 
 ## 🧠 Notes
 
-* Search functionality is powered by Laravel Scout + Typesense
-* After seeding, always re-import data into Typesense
-* Tests may not reflect search results unless:
-
-  * Typesense is running, OR
-  * `SCOUT_DRIVER=database` is used in `.env.testing`
+- Search functionality is powered by Laravel Scout + Typesense
+- After seeding, always re-import data into Typesense
+- Tests may not reflect search results unless:
+    - Typesense is running, OR
+    - `SCOUT_DRIVER=database` is used in `.env.testing`
 
 ---
 
@@ -193,5 +200,3 @@ Set:
 ```env
 SCOUT_DRIVER=database
 ```
-
----
